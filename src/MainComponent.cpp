@@ -1,11 +1,3 @@
-/*
-  ==============================================================================
-
-    This file was auto-generated!
-
-  ==============================================================================
-*/
-
 #ifndef MAINCOMPONENT_H_INCLUDED
 #define MAINCOMPONENT_H_INCLUDED
 
@@ -15,11 +7,7 @@
 #include "RNBO_Utils.h"
 #include "RNBO_JuceAudioProcessor.h"
 
-#include "RNBO.cpp"
-
 #include <array>
-
-using namespace RNBO;
 
 //==============================================================================
 /*
@@ -67,7 +55,7 @@ public:
 	}
 };
 
-class MainContentComponent   : public Component, public RNBO::PatcherChangedHandler, public AsyncUpdater
+class MainContentComponent   : public Component, public RNBO::PatcherChangedHandler, public AsyncUpdater, public Slider::Listener
 {
 public:
 
@@ -91,14 +79,11 @@ public:
 		// setup our buffer size
 		AudioDeviceManager::AudioDeviceSetup setup;
 		_deviceManager.getAudioDeviceSetup(setup);
-		//setup.bufferSize = 1024;
 		setup.bufferSize = 128;
-		//setup.bufferSize = 256;
 		_deviceManager.setAudioDeviceSetup(setup, false);
 
 		_deviceManager.addAudioCallback(&_audioProcessorPlayer);
 
-#if 1
 		// let's listen to all midi inputs
 		// enable all midi inputs
 		StringArray midiInputDevices = MidiInput::getDevices();
@@ -106,17 +91,12 @@ public:
 			_deviceManager.setMidiInputEnabled(input, true);
 		}
 		_deviceManager.addMidiInputCallback("", &_audioProcessorPlayer);
-#else
-		// listen to the default MIDI input
-		_deviceManager.setMidiInputEnabled(MidiInput::getDevices()[MidiInput::getDefaultDeviceIndex()], true);
-		_deviceManager.addMidiInputCallback(MidiInput::getDevices()[MidiInput::getDefaultDeviceIndex()], &_audioProcessorPlayer);
-#endif
 
 		// setup the midi keyboard
 		_midiKeyboardState.addListener(&_audioProcessorPlayer.getMidiMessageCollector());
 		addAndMakeVisible(&_midiKeyboardComponent);
 
-		_keyboardFocusGrabber = make_unique<GrabFocusWhenShownComponentMovementWatcher>(&_midiKeyboardComponent);
+		_keyboardFocusGrabber = RNBO::make_unique<GrabFocusWhenShownComponentMovementWatcher>(&_midiKeyboardComponent);
 
 		loadRNBOAudioProcessor();
 
@@ -132,7 +112,6 @@ public:
 	void handleAsyncUpdate() override
 	{
 		// reload the processor
-		unloadRNBOAudioProcessor();
 		loadRNBOAudioProcessor();
 	}
 
@@ -142,20 +121,30 @@ public:
 
 		jassert(_audioProcessor.get() == nullptr);
 
-		_audioProcessor = make_unique<JuceAudioProcessor>();
+		_audioProcessor = RNBO::make_unique<RNBO::JuceAudioProcessor>();
 		RNBO::CoreObject& rnboObject = _audioProcessor->getRnboObject();
 		rnboObject.setPatcherChangedHandler(this);
 
 		_audioProcessorPlayer.setProcessor(_audioProcessor.get());
-		_audioProcessorEditor.reset(_audioProcessor->createEditorIfNeeded());
-		if (_audioProcessorEditor) {
-			addAndMakeVisible(_audioProcessorEditor.get());
-			resized();  // set up the sizes
 
-			// we don't want mouse clicks to move focus away from midi keyboard
-			// so that we can use "midi keys" while using mouse on parameter sliders
-			setMouseClickGrabsKeyboardFocusOnAllChildren(_audioProcessorEditor.get(), false);
-		}
+		// The JUCE adapter RNBO::JuceAudioProcessor implements an AudioProcessorEditor,
+		// which you're free to use. Skip this if you want to create a custom UI, or if 
+		// you don't need an interface for your audio processor.
+		// _audioProcessorEditor.reset(_audioProcessor->createEditorIfNeeded());
+		// if (_audioProcessorEditor) {
+		// 	addAndMakeVisible(_audioProcessorEditor.get());
+		// 	resized();  // set up the sizes
+
+		// 	// we don't want mouse clicks to move focus away from midi keyboard
+		// 	// so that we can use "midi keys" while using mouse on parameter sliders
+		// 	setMouseClickGrabsKeyboardFocusOnAllChildren(_audioProcessorEditor.get(), false);
+		// }
+
+		// Here's an example of a custom interface
+		_customSlider = RNBO::make_unique<Slider>();
+		addAndMakeVisible(_customSlider.get());
+		_customSlider->setRange(0, 6);
+		_customSlider->addListener(this);
 	}
 
 	void unloadRNBOAudioProcessor()
@@ -199,8 +188,26 @@ public:
 			_audioProcessorEditor->setBounds(0, 0, getWidth(), getHeight() - keysHeight);
 		}
 		_midiKeyboardComponent.setBounds(0, getHeight() - keysHeight, getWidth(), keysHeight);
+		if (_customSlider) {
+			auto sliderLeft = 120;
+			_customSlider->setBounds (sliderLeft, 20, getWidth() - sliderLeft - 10, 20);
+		}
     }
 
+	void sliderValueChanged (juce::Slider* slider) override
+    {
+        if (slider == _customSlider.get()) {
+			const float newVal = (float) _customSlider->getValue();
+			const auto param = _audioProcessor->getParameters()[0];
+
+			if (param->getValue() != newVal)
+			{
+				param->beginChangeGesture();
+				param->setValueNotifyingHost(newVal);
+				param->endChangeGesture();
+			}
+		}
+    }
 
 private:
     //==============================================================================
@@ -210,14 +217,14 @@ private:
 
 	std::unique_ptr<GrabFocusWhenShownComponentMovementWatcher> _keyboardFocusGrabber;
 
-	std::unique_ptr<JuceAudioProcessor>		_audioProcessor;
-	std::unique_ptr<AudioProcessorEditor>	_audioProcessorEditor;
+	std::unique_ptr<RNBO::JuceAudioProcessor>	_audioProcessor;
+	std::unique_ptr<AudioProcessorEditor>		_audioProcessorEditor;
+
+	std::unique_ptr<Slider>						_customSlider;
 
 	// midi keyboard stuff
 	MidiKeyboardState		_midiKeyboardState;
 	MidiKeyboardComponent	_midiKeyboardComponent;
-
-	std::array<float, 1024>	_testAudioBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };

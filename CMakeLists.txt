@@ -1,19 +1,4 @@
-# Example GUI App CMakeLists.txt
-
-# To get started on a new GUI app, copy this entire folder (containing this file and C++ sources) to
-# a convenient location, and then start making modifications. For other examples of CMakeLists for
-# GUI apps, check `extras/Projucer` and `examples/DemoRunner` in the JUCE repo.
-
-# The first line of any CMake project should be a call to `cmake_minimum_required`, which checks
-# that the installed CMake will be able to understand the following CMakeLists, and ensures that
-# CMake's behaviour is compatible with the named version. This is a standard CMake command, so more
-# information can be found in the CMake docs.
-
 cmake_minimum_required(VERSION 3.15)
-
-# The top-level CMakeLists.txt file for a project must contain a literal, direct call to the
-# `project()` command. `project()` sets up some helpful variables that describe source/binary
-# directories, and the current project version. This is a standard CMake command.
 
 project(RNBO_APP_EXAMPLE VERSION 1.1.0)
 
@@ -48,8 +33,8 @@ juce_add_gui_app(RNBOApp
     # ICON_BIG ...                      # ICON_* arguments specify a path to an image file to use as an icon
     # ICON_SMALL ...
     # DOCUMENT_EXTENSIONS ...           # Specify file extensions that should be associated with this app
-    COMPANY_NAME "cycling74"                  # Specify the name of the app's author
-		PRODUCT_NAME "RNBO App Example")     # The name of the final executable, which can differ from the target name
+    COMPANY_NAME "cycling74"            # Specify the name of the app's author
+	PRODUCT_NAME "RNBO App Example")    # The name of the final executable, which can differ from the target name
 
 # `juce_generate_juce_header` will create a JuceHeader.h for a given target, which will be generated
 # into your build tree. This should be included with `#include <JuceHeader.h>`. The include path for
@@ -71,6 +56,7 @@ target_sources(RNBOApp
 
 		${RNBO_CLASS_FILE}
 
+		${RNBO_CPP_DIR}/RNBO.cpp
 		${RNBO_CPP_DIR}/adapters/juce/RNBO_JuceAudioProcessorUtils.cpp
 		${RNBO_CPP_DIR}/adapters/juce/RNBO_JuceAudioProcessorEditor.cpp
 		${RNBO_CPP_DIR}/adapters/juce/RNBO_JuceAudioProcessor.cpp
@@ -82,13 +68,6 @@ include_directories(
 	"${RNBO_CPP_DIR}/common/"
 	"${RNBO_CPP_DIR}/adapters/juce/"
 )
-
-# `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
-# project, these might be passed in the 'Preprocessor Definitions' field. JUCE modules also make use
-# of compile definitions to switch certain features on/off, so if there's a particular feature you
-# need that's not on by default, check the module header for the correct flag to set here. These
-# definitions will be visible both to your code, and also the JUCE module code, so for new
-# definitions, pick unique names that are unlikely to collide! This is a standard CMake command.
 
 target_compile_definitions(RNBOApp
     PRIVATE
