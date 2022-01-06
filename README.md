@@ -41,10 +41,10 @@ Now you need to copy this repository locally. Follow [the official steps](https:
 
 ```
 cd your-project-folder
-git submodule update --init --recursive
+git submodule update --init --recursive --progress
 ```
 
-That's all you'll need to do to get set up! Now you can start exporting from RNBO and building your application.
+Strictly speaking you don't need that last `--progress` flag, but it's nice to have some progress indication. That's all you'll need to do to get set up! Now you can start exporting from RNBO and building your application.
 
 ### Working with RNBO and Building Your Project
 
