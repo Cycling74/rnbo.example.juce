@@ -81,6 +81,8 @@ Finally, build your project.
 cmake --build .
 ```
 
+You'll find the executable result in `build/RNBOApp_artefacts/Debug`
+
 ## Extending the Application
 
 Plugin building is based on the [JUCE Framework](http://www.juce.com/). Please refer to tutorials from JUCE on building UIs, for instance.
