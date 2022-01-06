@@ -12,6 +12,19 @@ This application is based on the cross-platform JUCE framework for handling audi
  - (MacOS) Install [Ninja](https://github.com/ninja-build/ninja/releases), easiest way is probably `brew install ninja`
  - (MacOS) Download and install [Xcode](https://developer.apple.com/xcode/resources/). We have tested using Xcode 12.
  - (Windows) Download and install [Visual Studio 2019](https://visualstudio.microsoft.com/vs/). Community Edition is enough!
+
+## File structure
+
+The source code of the application is in the `src/` directory. This directory should contain everything that you need to modify to build your application.
+
+Some notable files/directories:
+
+| Location | Explanation |
+| ------------ | ------------- |
+| export/		| The directory into which you should export your RNBO code |
+| src/					| Source for the application - feel free to edit (includes sample UI) |
+| build/RNBO_artefacts/					        | Your built applications will end up here |
+
 ## Using this Template
 
 This Github repo is a template, which means you can use it to start your own git-based project using this repository as a starting point. The major difference between a template and a fork is that your new project won't include the commit history of this template--it will be an entirely new starting point. For more see [the official description](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
