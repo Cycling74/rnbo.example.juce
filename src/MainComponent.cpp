@@ -55,7 +55,7 @@ public:
 	}
 };
 
-class MainContentComponent   : public Component, public RNBO::PatcherChangedHandler, public AsyncUpdater, public Slider::Listener
+class MainContentComponent   : public Component, public RNBO::PatcherChangedHandler, public AsyncUpdater
 {
 public:
 
@@ -130,21 +130,15 @@ public:
 		// The JUCE adapter RNBO::JuceAudioProcessor implements an AudioProcessorEditor,
 		// which you're free to use. Skip this if you want to create a custom UI, or if 
 		// you don't need an interface for your audio processor.
-		// _audioProcessorEditor.reset(_audioProcessor->createEditorIfNeeded());
-		// if (_audioProcessorEditor) {
-		// 	addAndMakeVisible(_audioProcessorEditor.get());
-		// 	resized();  // set up the sizes
+		_audioProcessorEditor.reset(_audioProcessor->createEditorIfNeeded());
+		if (_audioProcessorEditor) {
+			addAndMakeVisible(_audioProcessorEditor.get());
+			resized();  // set up the sizes
 
-		// 	// we don't want mouse clicks to move focus away from midi keyboard
-		// 	// so that we can use "midi keys" while using mouse on parameter sliders
-		// 	setMouseClickGrabsKeyboardFocusOnAllChildren(_audioProcessorEditor.get(), false);
-		// }
-
-		// Here's an example of a custom interface
-		_customSlider = RNBO::make_unique<Slider>();
-		addAndMakeVisible(_customSlider.get());
-		_customSlider->setRange(0, 6);
-		_customSlider->addListener(this);
+			// we don't want mouse clicks to move focus away from midi keyboard
+			// so that we can use "midi keys" while using mouse on parameter sliders
+			setMouseClickGrabsKeyboardFocusOnAllChildren(_audioProcessorEditor.get(), false);
+		}
 	}
 
 	void unloadRNBOAudioProcessor()
@@ -188,25 +182,6 @@ public:
 			_audioProcessorEditor->setBounds(0, 0, getWidth(), getHeight() - keysHeight);
 		}
 		_midiKeyboardComponent.setBounds(0, getHeight() - keysHeight, getWidth(), keysHeight);
-		if (_customSlider) {
-			auto sliderLeft = 120;
-			_customSlider->setBounds (sliderLeft, 20, getWidth() - sliderLeft - 10, 20);
-		}
-    }
-
-	void sliderValueChanged (juce::Slider* slider) override
-    {
-        if (slider == _customSlider.get()) {
-			const float newVal = (float) _customSlider->getValue();
-			const auto param = _audioProcessor->getParameters()[0];
-
-			if (param->getValue() != newVal)
-			{
-				param->beginChangeGesture();
-				param->setValueNotifyingHost(newVal);
-				param->endChangeGesture();
-			}
-		}
     }
 
 private:
@@ -219,8 +194,6 @@ private:
 
 	std::unique_ptr<RNBO::JuceAudioProcessor>	_audioProcessor;
 	std::unique_ptr<AudioProcessorEditor>		_audioProcessorEditor;
-
-	std::unique_ptr<Slider>						_customSlider;
 
 	// midi keyboard stuff
 	MidiKeyboardState		_midiKeyboardState;

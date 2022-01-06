@@ -78,7 +78,7 @@ Now you have a choice of what build system you want to use. Any one of the follo
 Finally, build your project.
 
 ```
-cmake --build --config Release .
+cmake --build .
 ```
 
 ## Extending the Application
