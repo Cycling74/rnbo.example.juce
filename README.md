@@ -1,17 +1,19 @@
-# RNBO Desktop App Example
+# RNBO JUCE Examples
 
-So you want to build your own DAW? This template should get you started with your own Standalone Desktop application, using the source code export feature of RNBO, part of [Max 8](https://cycling74.com/max8/) made by [Cycling '74](https://cycling74.com/). 
+So you want to build your own DAW or a Plugin? This template should get you started with your own Standalone Desktop application and Audio Plugin, using the source code export feature of RNBO, part of [Max 8](https://cycling74.com/max8/) made by [Cycling '74](https://cycling74.com/). 
 
-This application is based on the cross-platform JUCE framework for handling audio processing. You have the option of using JUCE to manage your UI as well. Please be aware that the JUCE has its own license terms (mostly GPL with the availability of commercial licenses). See their [website](http://www.juce.com/) for further details.
+This project is based on the cross-platform JUCE framework for handling audio processing. You have the option of using JUCE to manage your UI as well. Please be aware that the JUCE has its own license terms (mostly GPL with the availability of commercial licenses). See their [website](http://www.juce.com/) for further details.
+
 ## Prerequisites
 
 - Download and install [CMake](https://cmake.org/download/). Version 3.18 or higher is required.
 - Download and install [git](https://git-scm.com/downloads).
 - Some kind of build system and compiler. You have options here.
  - (MacOS) Install Xcode command line tools by running `sudo xcode-select --install` on the command line. You'll use `make` to compile your application.
- - (MacOS) Install [Ninja](https://github.com/ninja-build/ninja/releases), easiest way is probably `brew install ninja`
+ - (MacOS/Linux/Unix-like) Install [Ninja](https://github.com/ninja-build/ninja/releases), easiest way is probably `brew install ninja` or `sudo apt-get install ninja`
  - (MacOS) Download and install [Xcode](https://developer.apple.com/xcode/resources/). We have tested using Xcode 12.
  - (Windows) Download and install [Visual Studio 2019](https://visualstudio.microsoft.com/vs/). Community Edition is enough!
+ - (Linux/Unix-like) use `make`, often already on your system. For debian based systems `sudo apt-get install build-essential`
 
 ## File structure
 
@@ -19,11 +21,12 @@ The source code of the application is in the `src/` directory. This directory sh
 
 Some notable files/directories:
 
-| Location | Explanation |
-| ------------ | ------------- |
-| export/		| The directory into which you should export your RNBO code |
-| src/					| Source for the application - feel free to edit (includes sample UI) |
-| build/RNBO_artefacts/					        | Your built applications will end up here |
+| Location                          | Explanation   |
+| --------------------------------- | ------------- |
+| export/                           | The directory into which you should export your RNBO code |
+| src/                              | Source for the project - feel free to edit (includes sample UI) |
+| build/RNBOApp_artefacts/          | Your built application will end up here |
+| build/RNBOAudioPlugin_artefacts/  | Your built plugins will end up here |
 
 ## Using this Template
 
@@ -44,7 +47,7 @@ cd your-project-folder
 git submodule update --init --recursive --progress
 ```
 
-Strictly speaking you don't need that last `--progress` flag, but it's nice to have some progress indication. That's all you'll need to do to get set up! Now you can start exporting from RNBO and building your application.
+Strictly speaking you don't need that last `--progress` flag, but it's nice to have some progress indication. That's all you'll need to do to get set up! Now you can start exporting from RNBO and building your project.
 
 ### Working with RNBO and Building Your Project
 
@@ -62,7 +65,7 @@ export/
 ├─ README.md
 ```
 
-Whenever you make a change to your RNBO patch, remember to export the source code again to update this file. Now that you've exported your RNBO code, it's time to build the application. This project uses CMake, which gives us the flexibility of using whatever build system we want. Start by moving to the build directory.
+Whenever you make a change to your RNBO patch, remember to export the source code again to update this file. Now that you've exported your RNBO code, it's time to build. This project uses CMake, which gives us the flexibility of using whatever build system we want. Start by moving to the build directory.
 
 ```
 cd build
@@ -70,10 +73,10 @@ cd build
 
 Now you have a choice of what build system you want to use. Any one of the following will work
 
-- `cmake .. -G Xcode` (create an Xcode project to build your application)
+- `cmake .. -G Xcode` (create an Xcode project)
 - `cmake .. -G "Visual Studio 16"` (create a Visual Studio 2019 project)
-- `cmake .. -G Ninja` (use Ninja to build your application)
-- `cmake ..` (just use the default, which will be `make` on MacOS)
+- `cmake .. -G Ninja` (use Ninja to build)
+- `cmake ..` (just use the default, which will be `make` on MacOS, Linux and other Unix-like platforms)
 
 Finally, build your project.
 
@@ -82,7 +85,8 @@ cmake --build .
 ```
 
 You'll find the executable result in `build/RNBOApp_artefacts/Debug`
+You'll find plugins in `build/RNBOAudioPlugin_artefacts/Debug`
 
-## Extending the Application
+## Extending the Project
 
-Plugin building is based on the [JUCE Framework](http://www.juce.com/). Please refer to tutorials from JUCE on building UIs, for instance.
+This project is based on the [JUCE Framework](http://www.juce.com/). Please refer to tutorials from JUCE on building UIs, for instance.
