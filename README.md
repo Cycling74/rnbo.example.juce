@@ -87,6 +87,10 @@ cmake --build .
 You'll find the executable result in `build/RNBOApp_artefacts/Debug`
 You'll find plugins in `build/RNBOAudioPlugin_artefacts/Debug`
 
-## Extending the Project
+## Customizing the Project
 
 This project is based on the [JUCE Framework](http://www.juce.com/). Please refer to tutorials from JUCE on building UIs, for instance.
+
+There are details that you might want to change in `App.cmake` for Applications and in `Plugin.cmake` for Plugins.
+
+If you're not interested in the Application or Plugin parts of this project you can remove the associated *include* lines from the `CMakeLists.txt` file.
