@@ -13,7 +13,11 @@ set(RNBO_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/code/rnbo/" CACHE FILEPATH 
 set(RNBO_CLASS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/export/code/rnbo_source.cpp" CACHE FILEPATH "The file that holds the generated RNBO class code")
 
 # Include the JUCE submodule, needed for JUCE-based CMake definitions
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/thirdparty/juce ${CMAKE_BINARY_DIR}/juce)
+add_subdirectory(
+  ${CMAKE_CURRENT_LIST_DIR}/thirdparty/juce
+  ${CMAKE_BINARY_DIR}/juce
+  EXCLUDE_FROM_ALL #don't build examples etc, also don't install
+)
 
 # Or, instead, use Conan to get JUCE, should speed up clean builds
 # include(${RNBO_CPP_DIR}/cmake/RNBOJuce.cmake)
