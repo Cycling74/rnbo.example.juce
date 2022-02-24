@@ -72,6 +72,15 @@ public:
 	//==============================================================================
 	MainContentComponent()
 	: _midiKeyboardComponent(_midiKeyboardState, MidiKeyboardComponent::horizontalKeyboard)
+	, _deviceSelectorComponent(_deviceManager,
+		0,     // minimum input channels
+		256,   // maximum input channels
+		0,     // minimum output channels
+		256,   // maximum output channels
+		false, // ability to select midi inputs
+		false, // ability to select midi output device
+		false, // treat channels as stereo pairs
+		false) // hide advanced options
     {
 		const int channelCount = 2;
 		_deviceManager.initialiseWithDefaultDevices(channelCount, channelCount);
@@ -96,11 +105,17 @@ public:
 		_midiKeyboardState.addListener(&_audioProcessorPlayer.getMidiMessageCollector());
 		addAndMakeVisible(&_midiKeyboardComponent);
 
+		// Only add the device selector if we're running as a standalone application
+		if (JUCEApplicationBase::isStandaloneApp()) {
+			addAndMakeVisible (_deviceSelectorComponent);
+			_includesDeviceSelector = true;
+		}
+
 		_keyboardFocusGrabber = RNBO::make_unique<GrabFocusWhenShownComponentMovementWatcher>(&_midiKeyboardComponent);
 
 		loadRNBOAudioProcessor();
 
-		setSize (800, 600);
+		setSize (800, 494);
     }
 
 	void patcherChanged() override
@@ -170,7 +185,7 @@ public:
     void paint (Graphics& g) override
     {
         // (Our component is opaque, so we must completely fill the background with a solid colour)
-        g.fillAll (Colours::white);
+        g.fillAll (JUCEApplicationBase::isStandaloneApp() ? Colours::darkgrey : Colours::white);
 
         // You can add your drawing code here!
     }
@@ -178,10 +193,18 @@ public:
     void resized() override
     {
 		const int keysHeight = 60;
-		if (_audioProcessorEditor) {
-			_audioProcessorEditor->setBounds(0, 0, getWidth(), getHeight() - keysHeight);
+		const int selectorWidth = 328;
+		int usedSelectorWidth = 0;
+
+		if (_includesDeviceSelector) {
+			usedSelectorWidth = std::min(getWidth(), selectorWidth);
+			_deviceSelectorComponent.setBounds(0, 0, usedSelectorWidth, getHeight());
 		}
-		_midiKeyboardComponent.setBounds(0, getHeight() - keysHeight, getWidth(), keysHeight);
+
+		if (_audioProcessorEditor) {
+			_audioProcessorEditor->setBounds(usedSelectorWidth, 0, getWidth() - usedSelectorWidth, getHeight() - keysHeight);
+		}
+		_midiKeyboardComponent.setBounds(usedSelectorWidth, getHeight() - keysHeight, getWidth() - usedSelectorWidth, keysHeight);
     }
 
 private:
@@ -198,6 +221,10 @@ private:
 	// midi keyboard stuff
 	MidiKeyboardState		_midiKeyboardState;
 	MidiKeyboardComponent	_midiKeyboardComponent;
+
+	// Audio device chooser
+	AudioDeviceSelectorComponent _deviceSelectorComponent;
+	bool _includesDeviceSelector = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
