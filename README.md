@@ -87,6 +87,10 @@ cmake --build .
 You'll find the executable result in `build/RNBOApp_artefacts/Debug`
 You'll find plugins in `build/RNBOAudioPlugin_artefacts/Debug`
 
+## Additional Notes
+
+When building for M1 Macs, you will want to enable universal builds, so that your target can be used on both Intel and M1 macs. `CMakeLists.txt` has a line you can uncomment to enable universal builds.
+
 ## Customizing the Project
 
 This project is based on the [JUCE Framework](http://www.juce.com/). Please refer to tutorials from JUCE on building UIs, for instance.
