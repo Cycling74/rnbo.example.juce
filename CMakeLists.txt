@@ -30,6 +30,11 @@ add_subdirectory(
 # include(${RNBO_CPP_DIR}/cmake/CCache.cmake)
 
 
+# Comment out this line if you really want to emulate MIDI CC with Audio Parameters.
+# See the discussion here: https://forums.steinberg.net/t/vst3-and-midi-cc-pitfall/201879/11
+add_compile_definitions(JUCE_VST3_EMULATE_MIDI_CC_WITH_PARAMETERS=0)
+
+
 # setup your application, you can remove this include if you don't want to build applications
 include(${CMAKE_CURRENT_LIST_DIR}/App.cmake)
 
