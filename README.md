@@ -6,10 +6,10 @@ This project is based on the cross-platform JUCE framework for handling audio pr
 
 ## Prerequisites
 
-- Download and install [CMake](https://cmake.org/download/). Version 3.18 or higher is required.
+- Download and install [CMake](https://cmake.org/download/). Version 3.18 or higher is required. On MacOS, we recommend installing CMake with [Homebrew](https://brew.sh/)
 - Download and install [git](https://git-scm.com/downloads).
 - Some kind of build system and compiler. You have options here.
- - (MacOS) Install Xcode command line tools by running `sudo xcode-select --install` on the command line. You'll use `make` to compile your application.
+ - (MacOS) Install Xcode command line tools by running `sudo xcode-select --install` on the command line. You'll use `make` to compile your application. (You will not be able to use Xcode to build your application unless you install Xcode itself.)
  - (MacOS/Linux/Unix-like) Install [Ninja](https://github.com/ninja-build/ninja/releases), easiest way is probably `brew install ninja` or `sudo apt-get install ninja`
  - (MacOS) Download and install [Xcode](https://developer.apple.com/xcode/resources/). We have tested using Xcode 12.
  - (Windows) Download and install [Visual Studio 2019](https://visualstudio.microsoft.com/vs/). Community Edition is enough!
@@ -47,7 +47,7 @@ cd your-project-folder
 git submodule update --init --recursive --progress
 ```
 
-Strictly speaking you don't need that last `--progress` flag, but it's nice to have some progress indication. That's all you'll need to do to get set up! Now you can start exporting from RNBO and building your project.
+If the above command doesn't work, check your version if git by runing `git --version`. The `--progress` flag wasn't introduced until git `2.11.0`, so if your version is earlier than this you won't have access to it. Strictly speaking you don't need that last `--progress` flag, but it's nice to have some progress indication, especially since installing the JUCE submodule can take a while. That's all you'll need to do to get set up! Now you can start exporting from RNBO and building your project.
 
 ### Working with RNBO and Building Your Project
 
@@ -67,28 +67,38 @@ export/
 
 Whenever you make a change to your RNBO patch, remember to export the source code again to update this file. Now that you've exported your RNBO code, it's time to build. This project uses CMake, which gives us the flexibility of using whatever build system we want. Start by moving to the build directory.
 
-```
+```sh
 cd build
 ```
 
-Now you have a choice of what build system you want to use. Any one of the following will work
+Now you have a choice of what build system you want to use. Any one of the following will work:
 
 - `cmake .. -G Xcode` (create an Xcode project)
 - `cmake .. -G "Visual Studio 16"` (create a Visual Studio 2019 project)
 - `cmake .. -G Ninja` (use Ninja to build)
 - `cmake ..` (just use the default, which will be `make` on MacOS, Linux and other Unix-like platforms)
 
-Finally, build your project.
+You might be wondering which on is "best". We say, if you're familiar with Xcode or Visual Studio or Ninja, just go with that. This might be a good time to get a snack, as CMake can take a few minutes to get everything ready, especially when generating the build files for the first time. You may also see a number of warnings in the console, which you can (probably) safely ignore.
+
+Once CMake has finished generating your build system, you can finally build your project.
 
 ```
 cmake --build .
 ```
 
-You'll find the executable result in `build/RNBOApp_artefacts/Debug`
-You'll find plugins in `build/RNBOAudioPlugin_artefacts/Debug`
+Invoking `cmake` with the `--build` flag tells CMake to build your target, using whatever build tool you chose in the last step. After the build completes, you'll find the executable result in `build/RNBOApp_artefacts/Debug`, and you'll find plugins in `build/RNBOAudioPlugin_artefacts/Debug`.
 
-## Additional Notes
+If you're using the Xcode generator, but you don't have Xcode installed, you might see something like this when you try to build
+```sh
+% cmake --build .
+xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance
+```
 
+This simply means that you need to install Xcode, and not just the command line tools.
+
+## Additional Notes and Troubleshooting
+
+### Building Plugins on M1 Macs
 When building for M1 Macs, you will want to enable universal builds, so that your target can be used on both Intel and M1 macs. `CMakeLists.txt` has a line you can uncomment to enable universal builds.
 
 ## Customizing the Project
