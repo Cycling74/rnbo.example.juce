@@ -12,8 +12,8 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
 endif()
 
-set(RNBO_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/code/rnbo/" CACHE FILEPATH "The path to the the RNBO c++ source directory")
-set(RNBO_CLASS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/export/code/rnbo_source.cpp" CACHE FILEPATH "The file that holds the generated RNBO class code")
+set(RNBO_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo/" CACHE FILEPATH "The path to the the RNBO c++ source directory")
+set(RNBO_CLASS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo_source.cpp" CACHE FILEPATH "The file that holds the generated RNBO class code")
 
 # Include the JUCE submodule, needed for JUCE-based CMake definitions
 add_subdirectory(
