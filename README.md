@@ -59,9 +59,8 @@ Export your project, making sure to export into the `export` folder in this dire
 
 ```
 export/
-├─ code/
-|  ├─ rnbo/
-|  ├─ rnbo_source.cpp
+├─ rnbo/
+├─ rnbo_source.cpp
 ├─ README.md
 ```
 
