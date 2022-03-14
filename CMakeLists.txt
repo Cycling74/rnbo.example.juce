@@ -12,6 +12,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
 endif()
 
+set(RNBO_EXPORT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export" CACHE FILEPATH "The path to all exported resources")
 set(RNBO_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo/" CACHE FILEPATH "The path to the the RNBO c++ source directory")
 set(RNBO_CLASS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo_source.cpp" CACHE FILEPATH "The file that holds the generated RNBO class code")
 
@@ -34,6 +35,11 @@ add_subdirectory(
 # See the discussion here: https://forums.steinberg.net/t/vst3-and-midi-cc-pitfall/201879/11
 add_compile_definitions(JUCE_VST3_EMULATE_MIDI_CC_WITH_PARAMETERS=0)
 
+# Comment out these lines if you don't want to load presets
+if(EXISTS "${RNBO_EXPORT_DIR}/presets.json")
+  add_compile_definitions(HAS_PRESETS=1)
+  set(HAS_PRESETS true)
+endif()
 
 # setup your application, you can remove this include if you don't want to build applications
 include(${CMAKE_CURRENT_LIST_DIR}/App.cmake)
