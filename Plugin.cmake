@@ -74,15 +74,6 @@ target_compile_definitions(RNBOAudioPlugin
   JUCE_VST3_CAN_REPLACE_VST2=0
   )
 
-# If your target needs extra binary assets, you can add them here. The first argument is the name of
-# a new static library target that will include all the binary resources. There is an optional
-# `NAMESPACE` argument that can specify the namespace of the generated binary data class. Finally,
-# the SOURCES argument should be followed by a list of source files that should be built into the
-# static library. These source files can be of any kind (wav data, images, fonts, icons etc.).
-# Conversion to binary-data will happen when your target is built.
-
-# juce_add_binary_data(AudioPluginData SOURCES ...)
-
 # `target_link_libraries` links libraries and JUCE modules to other libraries or executables. Here,
 # we're linking our executable target to the `juce::juce_audio_utils` module. Inter-module
 # dependencies are resolved automatically, so `juce_core`, `juce_events` and so on will also be
@@ -91,13 +82,19 @@ target_compile_definitions(RNBOAudioPlugin
 
 target_link_libraries(RNBOAudioPlugin
   PRIVATE
-  # AudioPluginData           # If we'd created a binary data target, we'd link to it here
   juce::juce_audio_utils
   PUBLIC
   juce::juce_recommended_config_flags
   juce::juce_recommended_lto_flags
   juce::juce_recommended_warning_flags
   )
+
+if(DEFINED HAS_BINARY_RESOURCES)
+  target_link_libraries(RNBOAudioPlugin
+    PRIVATE
+    BinaryResources
+  )
+endif()
 
 #TODO windows and linux
 if(APPLE)

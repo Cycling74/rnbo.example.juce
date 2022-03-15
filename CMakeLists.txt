@@ -35,10 +35,31 @@ add_subdirectory(
 # See the discussion here: https://forums.steinberg.net/t/vst3-and-midi-cc-pitfall/201879/11
 add_compile_definitions(JUCE_VST3_EMULATE_MIDI_CC_WITH_PARAMETERS=0)
 
+set(BINARY_RESOURCES "")
+
 # Comment out these lines if you don't want to load presets
 if(EXISTS "${RNBO_EXPORT_DIR}/presets.json")
   add_compile_definitions(HAS_PRESETS=1)
-  set(HAS_PRESETS true)
+  set(HAS_BINARY_RESOURCES true)
+  list(APPEND BINARY_RESOURCES "${RNBO_EXPORT_DIR}/presets.json")
+endif()
+
+# Comment out these lines if you don't want to include samples as binary data
+if(EXISTS "${RNBO_EXPORT_DIR}/dependencies.json")
+  add_compile_definitions(HAS_DEPENDENCIES=1)
+  set(HAS_BINARY_RESOURCES true)
+  list(APPEND BINARY_RESOURCES "${RNBO_EXPORT_DIR}/dependencies.json")
+  if(EXISTS "${RNBO_EXPORT_DIR}/media")
+    file(GLOB dependency_sources "${RNBO_EXPORT_DIR}/media/*")
+    list(APPEND BINARY_RESOURCES ${dependency_sources})
+  endif()
+endif()
+
+# Add binary resources if they exist
+if(DEFINED HAS_BINARY_RESOURCES)
+  juce_add_binary_data(BinaryResources SOURCES
+    ${BINARY_RESOURCES}
+  )
 endif()
 
 # setup your application, you can remove this include if you don't want to build applications

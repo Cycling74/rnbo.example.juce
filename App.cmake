@@ -58,27 +58,6 @@ target_compile_definitions(RNBOApp
   JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:RNBOApp,JUCE_PRODUCT_NAME>"
   JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:RNBOApp,JUCE_VERSION>")
 
-# If your target needs extra binary assets, you can add them here. The first argument is the name of
-# a new static library target that will include all the binary resources. There is an optional
-# `NAMESPACE` argument that can specify the namespace of the generated binary data class. Finally,
-# the SOURCES argument should be followed by a list of source files that should be built into the
-# static library. These source files can be of any kind (wav data, images, fonts, icons etc.).
-# Conversion to binary-data will happen when your target is built.
-
-# Add presets, if they exist
-if(DEFINED HAS_PRESETS)
-  juce_add_binary_data(Presets SOURCES
-    "${RNBO_EXPORT_DIR}/presets.json"
-  )
-endif()
-
-# if(EXISTS "${RNBO_EXPORT_DIR}/media")
-#   set(HAS_BINARY_DATA true)
-#   juce_add_binary_data(Resources SOURCES
-#     "${RNBO_EXPORT_DIR}/media"
-#   )
-# endif()
-
 # `target_link_libraries` links libraries and JUCE modules to other libraries or executables. Here,
 # we're linking our executable target to the `juce::juce_gui_extra` module. Inter-module
 # dependencies are resolved automatically, so `juce_core`, `juce_events` and so on will also be
@@ -98,9 +77,9 @@ target_link_libraries(RNBOApp
   juce::juce_recommended_lto_flags
   juce::juce_recommended_warning_flags)
 
-if(DEFINED HAS_PRESETS)
+if(DEFINED HAS_BINARY_RESOURCES)
   target_link_libraries(RNBOApp
     PRIVATE
-    Presets
+    BinaryResources
   )
 endif()
