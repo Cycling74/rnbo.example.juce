@@ -82,8 +82,10 @@ public:
 		false, // treat channels as stereo pairs
 		false) // hide advanced options
     {
-		const int channelCount = 2;
-		_deviceManager.initialiseWithDefaultDevices(channelCount, channelCount);
+		loadRNBOAudioProcessor();
+		RNBO::CoreObject& rnboObject = _audioProcessor->getRnboObject();
+
+		_deviceManager.initialiseWithDefaultDevices(rnboObject.getNumInputChannels(), rnboObject.getNumOutputChannels());
 
 		// setup our buffer size
 		AudioDeviceManager::AudioDeviceSetup setup;
@@ -112,8 +114,6 @@ public:
 		}
 
 		_keyboardFocusGrabber = RNBO::make_unique<GrabFocusWhenShownComponentMovementWatcher>(&_midiKeyboardComponent);
-
-		loadRNBOAudioProcessor();
 
 		setSize (800, 494);
     }
