@@ -89,11 +89,9 @@ target_link_libraries(RNBOAudioPlugin
   juce::juce_recommended_warning_flags
   )
 
-if(DEFINED HAS_BINARY_RESOURCES)
-  target_link_libraries(RNBOAudioPlugin
-    PRIVATE
-    BinaryResources
-  )
+#samples and/or presets
+if (HAS_BINARY_RESOURCES)
+  target_link_libraries(RNBOAudioPlugin PRIVATE BinaryResources)
 endif()
 
 #TODO windows and linux

@@ -77,9 +77,6 @@ target_link_libraries(RNBOApp
   juce::juce_recommended_lto_flags
   juce::juce_recommended_warning_flags)
 
-if(DEFINED HAS_BINARY_RESOURCES)
-  target_link_libraries(RNBOApp
-    PRIVATE
-    BinaryResources
-  )
+if(HAS_BINARY_RESOURCES)
+  target_link_libraries(RNBOApp PRIVATE BinaryResources)
 endif()
