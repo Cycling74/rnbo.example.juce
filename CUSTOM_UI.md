@@ -24,6 +24,8 @@ By default the GUI editor is not enabled. You may need to enable it from the Too
 
 Create a new component. I named mine RootComponent because it's hard to come up with a good, original name. You can call yours whatever you want. Now let's add three sliders to our component.
 
+![](./img/named_slider.png)
+
 Now we have two main tasks ahead of us.
 
 1. Replace the default RNBO plugin UI with our custom interface.
