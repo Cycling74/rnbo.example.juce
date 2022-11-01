@@ -1,12 +1,14 @@
 # Working with your Unity Plugin
 
-Creating a generative instrument or audio effect that you can use in Unity is super easy with RNBO and this JUCE template. This guide will use a very simple synth plugin with a parameter that sets the frequency of the synth.
+Creating a generative instrument or audio effect that you can use in Unity is possible with RNBO and this JUCE template. This guide will use a very simple synth plugin with a parameter that sets the frequency of the synth.
 
 ## Configuring your export and `Plugin.cmake`
 
 Let's imagine a very simple sine tone synth with a parameter named "freq" that sets the frequency of the synth. Something like this:
 
 ![Unity Simple Synth](img/unitysimple1.png)
+
+**Important note: with the way that this template is currently configured, you should make sure that you have at least two output channels as shown above.**
 
 Load up this RNBO patch and export it into this template's `/export` directory. Over in `Plugin.cmake`, in the template's root directory, make sure that `Unity` is included on line 2. It should look like this:
 
@@ -46,26 +48,31 @@ using UnityEngine.Audio;
 
 public class PlayerAudio : MonoBehaviour
 {
+    // the speed for our "Player" character that is assigned this movement/audio script
     public float speed = 10;
+
+    // this will hold the Audio Mixer with our RNBO plugin
     public AudioMixer mixer;
 
     // a scaling factor for the parameter
-    public float cycleScale = 0.01f;
+    public float cycleScale = 0.1f;
 
     // Update is called once per frame
     void Update()
     {
-        Vector3 input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+        // move the player character left and right
+        Vector3 input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, 0);
         Vector3 direction = input.normalized;
         Vector3 velocity = direction * speed;
         Vector3 moveAmount = velocity * Time.deltaTime;
 
         transform.Translate(moveAmount);
 
+        // change the frequency with horizontal movement, scaled by our scaling factor
         ChangeFreq(mixer, "sinFreq", cycleScale * Mathf.Abs(transform.position.x));
     }
 
-    //change frequency of the cycle~ (normalized param)
+    // change frequency of the cycle~ (normalized param in the range 0..1)
     void ChangeFreq(AudioMixer mixer, string paramName, float freqValue)
     {
         mixer.SetFloat(paramName, freqValue);
