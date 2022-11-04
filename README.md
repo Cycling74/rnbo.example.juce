@@ -100,6 +100,33 @@ This simply means that you need to install Xcode, and not just the command line 
 ### Building Plugins on M1 Macs
 When building for M1 Macs, you will want to enable universal builds, so that your target can be used on both Intel and M1 macs. `CMakeLists.txt` has a line you can uncomment to enable universal builds.
 
+### Help! My DAW Won't Load My Plugin
+After building your plugin, you may find that it loads in some DAWs but not others. On MacOS, the problem is sometimes code signing. JUCE may incorrectly code sign your VST3 bundle. If you use the `codesign` tool to verify your VST3 bundle
+
+```
+codesign --verify --verbose RNBOAudioPlugin_artefacts/Release/VST3/MyPlugin.vst3
+```
+
+and you see an error like this:
+
+```
+RNBOAudioPlugin_artefacts/Release/VST3/MyPlugin.vst3: code has no resources but signature indicates they must be present
+```
+
+you're seeing the issue. Fortunately, you can give the plugin a new, ad-hoc code signature with the following command
+
+```
+codesign --force --deep -s - RNBOAudioPlugin_artefacts/Release/VST3/MyPlugin.vst3
+```
+
+You'll see a message like:
+
+```
+RNBOAudioPlugin_artefacts/Release/VST3/MyPlugin.vst3: replacing existing signature
+```
+
+Hopefully, this will resolve the issue.
+
 ### MIDI CC and VST3
 VST3 introduced some changes to the way plugins handle MIDI data. One way to make newer VST3 plugins behave more like VST2 is to create Parameters for each MIDI CC value on each MIDI channel. You can dip your toes into the [full discussion](https://forums.steinberg.net/t/vst3-and-midi-cc-pitfall/201879/11) if you want, but we disable this behavior by default. If you really want it, you can enable it by commenting out the appropriate line in `CMakeLists.txt`.
 
