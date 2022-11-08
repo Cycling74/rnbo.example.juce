@@ -1,6 +1,6 @@
 # Making a Custom UI with JUCE
 
-The JUCE plugin teplate uses the same code to build its user interface as the default VST/AU export. This default view lists all of the parameters available on your RNBO device and allows you to edit them. If you want to design your own user interface, then you'll need to familiarize yourself with building a custom interface using JUCE. A full course on using JUCE is outside the scope of this guide, but we can provide some quick tips for getting started, and hopefully help you avoid a couple of early pitfalls.
+The JUCE plugin template uses the same code to build its user interface as the default VST/AU export. This default view lists all of the parameters available on your RNBO device and allows you to edit them. If you want to design your own user interface, then you'll need to familiarize yourself with building a custom interface using JUCE. A full course on using JUCE is outside the scope of this guide, but we can provide some quick tips for getting started, and hopefully help you avoid a couple of early pitfalls.
 
 ## A Word on the Projucer
 
