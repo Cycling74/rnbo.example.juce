@@ -80,3 +80,9 @@ public class PlayerAudio : MonoBehaviour
 
 }
 ```
+
+## Using Multiple RNBO Plugins in Unity
+
+You may want to load multiple RNBO plugins into Unity. You'll need to make sure each has a unique name. This is dictated by the `PRODUCT_NAME` field that by default is set to "RNBO Plugin."
+
+In this JUCE template, this field is on line 33 of the `Plugin.cmake` file in the root directory. If you make multiple plugins, all with different values for this PRODUCT_NAME field, you should be able to load them separately into `Assets/Plugins/` in your Unity Project, and load them individually onto a track in your Audio Mixer.
