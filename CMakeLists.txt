@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.15)
 
+# On M1 Macs, uncomment to enable universal binaries
+# set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
+
 project(RNBO_JUCE_EXAMPLE VERSION 1.2.0)
 
 set(CMAKE_CXX_STANDARD 14) #JUCE requires 14
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# On M1 Macs, uncomment to enable universal binaries
-# set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
