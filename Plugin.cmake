@@ -57,6 +57,7 @@ include_directories(
   "${RNBO_CPP_DIR}/"
   "${RNBO_CPP_DIR}/common/"
   "${RNBO_CPP_DIR}/adapters/juce/"
+  "${RNBO_CPP_DIR}/src/3rdparty/"
   )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
