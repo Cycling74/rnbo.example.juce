@@ -15,6 +15,8 @@ endif()
 set(RNBO_EXPORT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export" CACHE FILEPATH "The path to all exported resources")
 set(RNBO_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo/" CACHE FILEPATH "The path to the the RNBO c++ source directory")
 set(RNBO_CLASS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo_source.cpp" CACHE FILEPATH "The file that holds the generated RNBO class code")
+set(INCLUDE_PRESETS ON CACHE BOOL "Should the project include presets if the presets.json file is found?")
+set(INCLUDE_SAMPLES ON CACHE BOOL "Should the project include samples if the dependencies.json file is found?")
 
 # Include the JUCE submodule, needed for JUCE-based CMake definitions
 add_subdirectory(
@@ -38,14 +40,12 @@ add_compile_definitions(JUCE_VST3_EMULATE_MIDI_CC_WITH_PARAMETERS=0)
 set(BINARY_RESOURCES "")
 set(HAS_BINARY_RESOURCES FALSE)
 
-# Comment out these lines if you don't want to load presets
-if(EXISTS "${RNBO_EXPORT_DIR}/presets.json")
+if(INCLUDE_PRESETS AND EXISTS "${RNBO_EXPORT_DIR}/presets.json")
   set(HAS_BINARY_RESOURCES TRUE)
   list(APPEND BINARY_RESOURCES "${RNBO_EXPORT_DIR}/presets.json")
 endif()
 
-# Comment out these lines if you don't want to include samples as binary data
-if(EXISTS "${RNBO_EXPORT_DIR}/dependencies.json")
+if(INCLUDE_SAMPLES AND EXISTS "${RNBO_EXPORT_DIR}/dependencies.json")
   set(HAS_BINARY_RESOURCES TRUE)
   list(APPEND BINARY_RESOURCES "${RNBO_EXPORT_DIR}/dependencies.json")
   if(EXISTS "${RNBO_EXPORT_DIR}/media")
