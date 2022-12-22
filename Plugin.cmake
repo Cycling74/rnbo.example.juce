@@ -51,6 +51,7 @@ target_sources(RNBOAudioPlugin PRIVATE
   "${RNBO_CPP_DIR}/adapters/juce/RNBO_JuceAudioProcessorEditor.cpp"
   "${RNBO_CPP_DIR}/RNBO.cpp"
   ${RNBO_CLASS_FILE}
+  src/Plugin.cpp
   )
 
 include_directories(
@@ -72,6 +73,7 @@ target_compile_definitions(RNBOAudioPlugin
   JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
   JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
   JUCE_VST3_CAN_REPLACE_VST2=0
+  RNBO_JUCE_NO_CREATE_PLUGIN_FILTER=1 #don't have RNBO create its own createPluginFilter function, we'll create it ourselves
   )
 
 # `target_link_libraries` links libraries and JUCE modules to other libraries or executables. Here,
