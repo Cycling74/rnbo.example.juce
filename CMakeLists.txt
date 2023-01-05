@@ -18,6 +18,14 @@ set(RNBO_CLASS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo_source.cpp" CACHE F
 set(INCLUDE_PRESETS ON CACHE BOOL "Should the project include presets if the presets.json file is found?")
 set(INCLUDE_SAMPLES ON CACHE BOOL "Should the project include samples if the dependencies.json file is found?")
 
+
+#write description header file if description.json exists, sets RNBO_INCLUDE_DESCRIPTION_FILE if the file exists
+include(${RNBO_CPP_DIR}/cmake/RNBODescriptionHeader.cmake)
+set(DESCRIPTION_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
+rnbo_write_description_header_if_exists(${RNBO_EXPORT_DIR}/description.json ${DESCRIPTION_INCLUDE_DIR})
+include_directories(${DESCRIPTION_INCLUDE_DIR})
+
+
 # Include the JUCE submodule, needed for JUCE-based CMake definitions
 add_subdirectory(
   ${CMAKE_CURRENT_LIST_DIR}/thirdparty/juce
