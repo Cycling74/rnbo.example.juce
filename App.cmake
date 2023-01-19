@@ -34,6 +34,9 @@ target_sources(RNBOApp
   PRIVATE
   src/Main.cpp
   src/MainComponent.cpp
+  src/CustomAudioEditor.cpp
+  src/CustomAudioProcessor.cpp
+  ui/NewProject/Source/RootComponent.cpp
 
   ${RNBO_CLASS_FILE}
 
@@ -44,11 +47,13 @@ target_sources(RNBOApp
   )
 
 include_directories(
+  "src"
   "${RNBO_CPP_DIR}/"
   "${RNBO_CPP_DIR}/src"
   "${RNBO_CPP_DIR}/common/"
   "${RNBO_CPP_DIR}/adapters/juce/"
   "${RNBO_CPP_DIR}/src/3rdparty/"
+  "ui/NewProject/Source"
   )
 
 target_compile_definitions(RNBOApp

@@ -6,6 +6,7 @@
 #include "RNBO.h"
 #include "RNBO_Utils.h"
 #include "RNBO_JuceAudioProcessor.h"
+#include "CustomAudioProcessor.h"
 
 #include <array>
 
@@ -136,7 +137,8 @@ public:
 
 		jassert(_audioProcessor.get() == nullptr);
 
-		_audioProcessor = RNBO::make_unique<RNBO::JuceAudioProcessor>();
+		// _audioProcessor = RNBO::make_unique<RNBO::JuceAudioProcessor>();
+		_audioProcessor = RNBO::make_unique<CustomAudioProcessor>();
 		RNBO::CoreObject& rnboObject = _audioProcessor->getRnboObject();
 		rnboObject.setPatcherChangedHandler(this);
 
@@ -215,7 +217,8 @@ private:
 
 	std::unique_ptr<GrabFocusWhenShownComponentMovementWatcher> _keyboardFocusGrabber;
 
-	std::unique_ptr<RNBO::JuceAudioProcessor>	_audioProcessor;
+	// std::unique_ptr<RNBO::JuceAudioProcessor>	_audioProcessor;
+	std::unique_ptr<CustomAudioProcessor>		_audioProcessor;
 	std::unique_ptr<AudioProcessorEditor>		_audioProcessorEditor;
 
 	// midi keyboard stuff
