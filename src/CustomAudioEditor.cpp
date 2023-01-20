@@ -25,5 +25,5 @@ void CustomAudioEditor::paint (Graphics& g)
 
 void CustomAudioEditor::audioProcessorParameterChanged (AudioProcessor*, int parameterIndex, float value)
 {
-    _rootComponent.updateSliderForParam(parameterIndex, value);
+    _rootComponent.updateSliderForParam((unsigned long) parameterIndex, value);
 }

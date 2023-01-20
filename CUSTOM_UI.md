@@ -41,7 +41,7 @@ JUCE uses the Projucer to set up JUCE projects. It doesn't build your plugin dir
 
 ### Getting Started
 
-For this example, we're going to create a custom user interface for a simple drone patcher. These steps should work for both a plugin as well as a desktop app. The patcher will produce a drone with adjustable timbre on a single audio channel. It looks like this:
+For this example, we're going to create a custom user interface for a simple drone patcher. These steps should work for both a plugin as well as a desktop app. The patcher will produce a drone with adjustable timbre. You can find it in `patches`, and it looks like this:
 
 ![](./img/droner.png)
 
