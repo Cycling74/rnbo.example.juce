@@ -21,6 +21,8 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
+#include "RNBO.h"
+#include "RNBO_JuceAudioProcessor.h"
 //[/Headers]
 
 
@@ -43,6 +45,8 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+    void setAudioProcessor(RNBO::JuceAudioProcessor *p);
+    void updateSliderForParam(unsigned long index, double value);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -53,6 +57,8 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+    RNBO::JuceAudioProcessor *processor = nullptr;
+    HashMap<int, Slider *> slidersByParameterIndex; // used to map parameter index to sliderwe want to control
     //[/UserVariables]
 
     //==============================================================================

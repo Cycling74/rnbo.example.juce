@@ -32,7 +32,7 @@ RootComponent::RootComponent ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    juce__slider.reset (new juce::Slider ("new slider"));
+    juce__slider.reset (new juce::Slider ("kink1"));
     addAndMakeVisible (juce__slider.get());
     juce__slider->setRange (0, 10, 0);
     juce__slider->setSliderStyle (juce::Slider::LinearHorizontal);
@@ -63,7 +63,7 @@ RootComponent::RootComponent ()
 
     juce__label2->setBounds (232, 64, 150, 24);
 
-    juce__slider2.reset (new juce::Slider ("new slider"));
+    juce__slider2.reset (new juce::Slider ("kink2"));
     addAndMakeVisible (juce__slider2.get());
     juce__slider2->setRange (0, 10, 0);
     juce__slider2->setSliderStyle (juce::Slider::LinearHorizontal);
@@ -83,7 +83,7 @@ RootComponent::RootComponent ()
 
     juce__label3->setBounds (232, 96, 150, 24);
 
-    juce__slider3.reset (new juce::Slider ("new slider"));
+    juce__slider3.reset (new juce::Slider ("kink3"));
     addAndMakeVisible (juce__slider3.get());
     juce__slider3->setRange (0, 10, 0);
     juce__slider3->setSliderStyle (juce::Slider::LinearHorizontal);
@@ -156,6 +156,9 @@ void RootComponent::resized()
 void RootComponent::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
+    if (processor == nullptr) return;
+    RNBO::CoreObject& coreObject = processor->getRnboObject();
+    auto parameters = processor->getParameters();
     //[/UsersliderValueChanged_Pre]
 
     if (sliderThatWasMoved == juce__slider.get())
@@ -175,12 +178,57 @@ void RootComponent::sliderValueChanged (juce::Slider* sliderThatWasMoved)
     }
 
     //[UsersliderValueChanged_Post]
+    RNBO::ParameterIndex index = coreObject.getParameterIndexForID(sliderThatWasMoved->getName().toRawUTF8());
+    if (index != RNBO::INVALID_INDEX) {
+        const auto param = processor->getParameters()[(int) index];
+        auto newVal = sliderThatWasMoved->getValue();
+
+        if (param && param->getValue() != newVal)
+        {
+            param->beginChangeGesture();
+            param->setValueNotifyingHost((float) newVal);
+            param->endChangeGesture();
+        }
+    }
     //[/UsersliderValueChanged_Post]
 }
 
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void RootComponent::setAudioProcessor(RNBO::JuceAudioProcessor *p)
+{
+    processor = p;
+
+    RNBO::ParameterInfo parameterInfo;
+    RNBO::CoreObject& coreObject = processor->getRnboObject();
+
+    for (unsigned long i = 0; i < coreObject.getNumParameters(); i++) {
+        auto parameterName = coreObject.getParameterId(i);
+        Slider *slider = nullptr;
+        if (juce::String(parameterName) == juce__slider.get()->getName()) {
+            slider = juce__slider.get();
+        } else if (juce::String(parameterName) == juce__slider2.get()->getName()) {
+            slider = juce__slider2.get();
+        } else if (juce::String(parameterName) == juce__slider3.get()->getName()) {
+            slider = juce__slider3.get();
+        }
+
+        if (slider) {
+            slidersByParameterIndex.set((int) i, slider);
+            coreObject.getParameterInfo(i, &parameterInfo);
+            slider->setRange(parameterInfo.min, parameterInfo.max);
+        }
+    }
+}
+
+void RootComponent::updateSliderForParam(unsigned long index, double value)
+{
+    auto slider = slidersByParameterIndex.getReference((int) index);
+    if (slider && (slider->getThumbBeingDragged() == -1)) {
+        slider->setValue(value, NotificationType::dontSendNotification);
+    }
+}
 //[/MiscUserCode]
 
 
@@ -198,7 +246,7 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="400" initialHeight="250">
   <BACKGROUND backgroundColour="ff323e44"/>
-  <SLIDER name="new slider" id="ee6af70b754ef1ad" memberName="juce__slider"
+  <SLIDER name="kink1" id="ee6af70b754ef1ad" memberName="juce__slider"
           virtualName="" explicitFocusOrder="0" pos="24 64 192 24" min="0.0"
           max="10.0" int="0.0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
@@ -213,7 +261,7 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Kink 1" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
-  <SLIDER name="new slider" id="6b3f63803217f918" memberName="juce__slider2"
+  <SLIDER name="kink2" id="6b3f63803217f918" memberName="juce__slider2"
           virtualName="" explicitFocusOrder="0" pos="24 96 192 24" min="0.0"
           max="10.0" int="0.0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
@@ -223,7 +271,7 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Kink 2" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
-  <SLIDER name="new slider" id="e7ac40b2386af22e" memberName="juce__slider3"
+  <SLIDER name="kink3" id="e7ac40b2386af22e" memberName="juce__slider3"
           virtualName="" explicitFocusOrder="0" pos="24 128 192 24" min="0.0"
           max="10.0" int="0.0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
