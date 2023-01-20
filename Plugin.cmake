@@ -54,7 +54,7 @@ target_sources(RNBOAudioPlugin PRIVATE
   src/Plugin.cpp
   src/CustomAudioEditor.cpp
   src/CustomAudioProcessor.cpp
-  ui/NewProject/Source/RootComponent.cpp
+  # ui/NewProject/Source/RootComponent.cpp
   )
 
 include_directories(
@@ -63,7 +63,7 @@ include_directories(
   "${RNBO_CPP_DIR}/adapters/juce/"
   "${RNBO_CPP_DIR}/src/3rdparty/"
   "src"
-  "ui/NewProject/Source"
+  # "ui/NewProject/Source"
   )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer

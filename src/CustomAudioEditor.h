@@ -1,6 +1,6 @@
 #include "JuceHeader.h"
 #include "RNBO.h"
-#include "RootComponent.h"
+#include "RNBO_JuceAudioProcessor.h"
 
 class CustomAudioEditor : public AudioProcessorEditor, public RNBO::EventHandler, private AudioProcessorListener
 {
@@ -17,8 +17,7 @@ private:
 protected:
     RNBO::CoreObject&                           _rnboObject; 
     RNBO::ParameterEventInterfaceUniquePtr      _parameterInterface; 
-    // Label                                       _label;
-    RootComponent                                _rootComponent;
+    Label                                       _label;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomAudioEditor)
 };

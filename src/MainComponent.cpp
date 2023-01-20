@@ -137,8 +137,8 @@ public:
 
 		jassert(_audioProcessor.get() == nullptr);
 
-		// _audioProcessor = RNBO::make_unique<RNBO::JuceAudioProcessor>();
-		_audioProcessor = RNBO::make_unique<CustomAudioProcessor>();
+		_audioProcessor = RNBO::make_unique<RNBO::JuceAudioProcessor>();
+		// _audioProcessor = RNBO::make_unique<CustomAudioProcessor>();
 		RNBO::CoreObject& rnboObject = _audioProcessor->getRnboObject();
 		rnboObject.setPatcherChangedHandler(this);
 
