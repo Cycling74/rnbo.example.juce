@@ -22,6 +22,12 @@ In that same file, find the line in `loadRNBOAudioProcessor` where `_audioProces
 _audioProcessor = RNBO::make_unique<CustomAudioProcessor>();
 ```
 
+At the top of `MainComponent.cpp`, you'll also want to uncomment the line which will `#include` the header file we need
+
+```cpp
+#include "CustomAudioProcessor.h"
+```
+
 ### Plugin Target
 To change the UI of the plugin target, look in `src/Plugin.cpp`. Change the `createPluginFilter` function to return the custom audio processor.
 
@@ -31,6 +37,11 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 	// return new RNBO::JuceAudioProcessor();
 	return new CustomAudioProcessor();
 }
+```
+Just like we did for the Standalone App, at the top of `Plugin.cpp` you'll also want to uncomment the line which will `#include` the header file we need
+
+```cpp
+#include "CustomAudioProcessor.h"
 ```
 
 ## Building a Custom UI with the Projucer
