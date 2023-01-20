@@ -1,39 +1,29 @@
-#include "JuceHeader.h"
-#include "RNBO.h"
-#include "RootComponent.h"
+#include "CustomAudioEditor.h"
 
-class CustomAudioEditor : public AudioProcessorEditor, public RNBO::EventHandler
+CustomAudioEditor::CustomAudioEditor (RNBO::JuceAudioProcessor* const p, RNBO::CoreObject& rnboObject)
+    : AudioProcessorEditor (p)
+    , _rnboObject(rnboObject)
+    , _parameterInterface(_rnboObject.createParameterInterface(RNBO::ParameterEventInterface::SingleProducer, this))
 {
-public:
-    CustomAudioEditor(AudioProcessor* const p, RNBO::CoreObject& rnboObject)
-        : AudioProcessorEditor (p)
-        , _rnboObject(rnboObject)
-        , _parameterInterface(_rnboObject.createParameterInterface(RNBO::ParameterEventInterface::SingleProducer, this))
-    {
-        addAndMakeVisible(_rootComponent);
+    p->AudioProcessor::addListener(this);
 
-        setSize (_rootComponent.getWidth(), _rootComponent.getHeight());
-    }
+    // _label.setText("Hi I'm Custom Interface", NotificationType::dontSendNotification);
+    // _label.setBounds(0, 0, 400, 300);
+    // _label.setColour(Label::textColourId, Colours::black);
+    // addAndMakeVisible(_label);
+    // setSize (_label.getWidth(), _label.getHeight());
 
-    void paint (Graphics& g)
-    {
-        g.fillAll (Colours::white);
-    }
+    _rootComponent.setAudioProcessor(p);
+    addAndMakeVisible(_rootComponent);
+    setSize(_rootComponent.getWidth(), _rootComponent.getHeight());
+}
 
-    void eventsAvailable() override
-    {
-        // Handle RNBO events somehow
-    }
-
-protected:
-    RNBO::CoreObject&                           _rnboObject; 
-    RNBO::ParameterEventInterfaceUniquePtr      _parameterInterface; 
-    RootComponent                               _rootComponent;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomAudioEditor)
-};
-
-AudioProcessorEditor* createCustomEditor(AudioProcessor * const &p, RNBO::CoreObject &c)
+void CustomAudioEditor::paint (Graphics& g)
 {
-    return new CustomAudioEditor(p, c);
+    g.fillAll(Colours::white);
+}
+
+void CustomAudioEditor::audioProcessorParameterChanged (AudioProcessor*, int parameterIndex, float value)
+{
+    _rootComponent.updateSliderForParam(parameterIndex, value);
 }

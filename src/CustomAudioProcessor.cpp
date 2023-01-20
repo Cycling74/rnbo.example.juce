@@ -1,11 +1,9 @@
 #include "CustomAudioProcessor.h"
+#include "CustomAudioEditor.h"
 
-AudioProcessorEditor* createCustomEditor(AudioProcessor * const &p, RNBO::CoreObject &c);
-
-CustomAudioProcessor::CustomAudioProcessor() {}
-CustomAudioProcessor::~CustomAudioProcessor() {}
+CustomAudioProcessor::CustomAudioProcessor() : RNBO::JuceAudioProcessor() {}
 
 AudioProcessorEditor* CustomAudioProcessor::createEditor()
 {
-    return createCustomEditor(this, this->_rnboObject);
+    return new CustomAudioEditor (this, this->_rnboObject);
 }
