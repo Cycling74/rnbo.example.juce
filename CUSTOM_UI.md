@@ -38,11 +38,8 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 	return new CustomAudioProcessor();
 }
 ```
-Just like we did for the Standalone App, at the top of `Plugin.cpp` you'll also want to uncomment the line which will `#include` the header file we need
+Just like we did for the Standalone App, at the top of `Plugin.cpp` you'll also want to uncomment the line that willinclude the `"CustomAudioProcessor.h"` header file.
 
-```cpp
-#include "CustomAudioProcessor.h"
-```
 
 ## Building a Custom UI with the Projucer
 
