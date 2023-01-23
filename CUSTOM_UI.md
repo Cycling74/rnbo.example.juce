@@ -2,6 +2,8 @@
 
 This document covers two use cases. First, we'll look at the entry points for a custom interface, and see how to swap out the default RNBO interface for one that you write yourself. Next, we'll go through an example of building an interface with the Projucer, and binding UI elements to RNBO code.
 
+Please note, if you haven't yet followed the setup steps in `README.md`, you should do so before you follow this tutorial.
+
 ## Switching to a Custom UI
 
 The files `src/CustomAudioProcessor` and `src/CustomAudioEditor` are starting points for a custom UI. `CustomAudioProcessor` returns `CustomAudioEditor` instead of the default `RNBO::JuceAudioProcessorEditor`, so the first step to making your own UI is to modify the code to use `CustomAudioProcessor` instead of the default `RNBO::JuceAudioProcessor`.
@@ -49,7 +51,9 @@ JUCE uses the Projucer to set up JUCE projects. It doesn't build your plugin dir
 
 ### Getting Started
 
-For this example, we're going to create a custom user interface for a simple drone patcher. These steps should work for both a plugin as well as a desktop app. The patcher will produce a drone with adjustable timbre. You can find it in `patches`, and it looks like this:
+For this example, we're going to create a custom user interface for a simple drone patcher, which you can export into `/export` as per the instructions over in `README.md`. These instructions in this document should work for both a plugin as well as a desktop app. 
+
+The `three-param-kink.maxpat` patcher will produce a drone with adjustable timbre. You can find it in `patches`, and it looks like this:
 
 ![](./img/droner.png)
 
@@ -63,7 +67,9 @@ By default the GUI editor is not enabled. You may need to enable it from the Too
 
 ![](./img/tools_menu.png)
 
-Create a new component. I named mine RootComponent because it's hard to come up with a good, original name. You can call yours whatever you want. Now let's add three sliders to our component. Let's also be careful to change the name of each component. Our three parameters are called `kink1`, `kink2`, and `kink3`, so give the sliders each one of these names. Later on, we'll use this name to map each slider to the RNBO parameter with the same name.
+From the "GUI Editor" menu, select "Add new GUI Component" to add a `.cpp` and `.h` file for your new component. I named mine `RootComponent` because it's hard to come up with a good, original name. You can call yours whatever you want. Now let's add three sliders to our component. Navigate to "Subcomponents" and right-click to add these sliders. Let's also be careful to change the name of each component. Our three parameters are called `kink1`, `kink2`, and `kink3`, so give the sliders each one of these names. Later on, we'll use this name to map each slider to the RNBO parameter with the same name.
+
+When you are done, "Save All."
 
 ![](./img/named_slider.png)
 
@@ -128,7 +134,7 @@ include_directories(
   )
 ```
 
-Now use CMake in the usual way to generate and build. That might look something like:
+Now use CMake in the usual way to generate and build. Remember to set the correct name for `RNBO_CLASS_FILE` on line 17 of `CMakeLists.txt`, for example, `three-param-kink.cpp`. Once you've done so, you can enter something like this into your terminal:
 
 ```sh
 cd build
@@ -136,7 +142,7 @@ cmake -G Ninja ..
 cmake --build .
 ```
 
-The plugin should build without errors. Now we just need to add the `RootComponent` to our custom UI.
+The plugin should build without errors, but of course we don't see our new `RootComponent` with its sliders yet. We need to add the `RootComponent` to our custom UI.
 
 ### Adding the Custom Root Component
 Open up `src/CustomAudioEditor.h`. First, add `RootComponent.h` to the include definitions.
@@ -144,6 +150,7 @@ Open up `src/CustomAudioEditor.h`. First, add `RootComponent.h` to the include d
 ```cpp
 #include "JuceHeader.h"
 #include "RNBO.h"
+#include "RNBO_JuceAudioProcessor.h"
 #include "RootComponent.h"
 ```
 
@@ -171,7 +178,7 @@ CustomAudioEditor::CustomAudioEditor(AudioProcessor* const p, RNBO::CoreObject& 
     // setSize (_label.getWidth(), _label.getHeight());
 
     addAndMakeVisible(_rootComponent);
-    setSize(_rootComponent.getWidth(), rootComponent.getHeight());
+    setSize(_rootComponent.getWidth(), _rootComponent.getHeight());
 }
 ```
 
@@ -185,7 +192,9 @@ cmake --build .
 
 ### Connecting the Sliders
 
-To make the sliders functional, we modify `RootComponent.h` and `RootComponent.cpp`. When the sliders change, we want to update the parameters of the `AudioProcessor`. When we get a parameter change notification from the `AudioProcessor`, we want to update the sliders.Open up `RootComponent.h`. At the top of the file, include the RNBO header.
+To make the sliders functional, we modify `RootComponent.h` and `RootComponent.cpp`. When the sliders change, we want to update the parameters of the `AudioProcessor`. When we get a parameter change notification from the `AudioProcessor`, we want to update the sliders.
+
+Open up `RootComponent.h`. At the top of the file, include these RNBO header files.
 
 ```cpp
 //[Headers]     -- You can add your own extra header files here --
@@ -208,7 +217,7 @@ Also add the following private instance variables
 ```cpp
 //[UserVariables]   -- You can add your own custom variables in this section.
 RNBO::JuceAudioProcessor *processor = nullptr;
-HashMap<int, Slider *> slidersByParameterIndex; // used to map parameter index to sliderwe want to control
+HashMap<int, Slider *> slidersByParameterIndex; // used to map parameter index to slider we want to control
 //[/UserVariables]
 ```
 
@@ -220,7 +229,7 @@ addAndMakeVisible(_rootComponent);
 setSize(_rootComponent.getWidth(), _rootComponent.getHeight());
 ```
 
-Now let's implement `setAudioProcessor`. Open up `RootObject.cpp` and add the following after `[MiscUserCode]`.
+Now let's implement `setAudioProcessor`. Open up `RootComponent.cpp` and add the following after `[MiscUserCode]`.
 
 ```cpp
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -305,7 +314,7 @@ void CustomAudioEditor::audioProcessorParameterChanged (AudioProcessor*, int par
 }
 ```
 
-Now open `RootComponent.cpp` and implement `updateSliderForParam`.
+Now open `RootComponent.cpp` and implement `updateSliderForParam` inside of the `[MiscUserCode]` tags.
 
 ```cpp
 void RootComponent::updateSliderForParam(unsigned long index, double value)
