@@ -166,10 +166,10 @@ RootComponent           _rootComponent;
 Finally, open up `src/CustomAudioEditor.cpp`. Find the constructor, where the default label is configured and sized. Replace that code with new code to size and configure the `RootComponent`.
 
 ```cpp
-CustomAudioEditor::CustomAudioEditor(AudioProcessor* const p, RNBO::CoreObject& rnboObject)
+CustomAudioEditor::CustomAudioEditor (RNBO::JuceAudioProcessor* const p, RNBO::CoreObject& rnboObject)
     : AudioProcessorEditor (p)
     , _rnboObject(rnboObject)
-    , _parameterInterface(_rnboObject.createParameterInterface(RNBO::ParameterEventInterface::SingleProducer, this))
+    , _audioProcessor(p)
 {
     p->AudioProcessor::addListener(this);
 
@@ -244,6 +244,7 @@ void RootComponent::setAudioProcessor(RNBO::JuceAudioProcessor *p)
 
     for (unsigned long i = 0; i < coreObject.getNumParameters(); i++) {
         auto parameterName = coreObject.getParameterId(i);
+        RNBO::ParameterValue value = coreObject.getParameterValue(i);
         Slider *slider = nullptr;
         if (juce::String(parameterName) == juce__slider.get()->getName()) {
             slider = juce__slider.get();
@@ -257,6 +258,7 @@ void RootComponent::setAudioProcessor(RNBO::JuceAudioProcessor *p)
             slidersByParameterIndex.set(i, slider);
             coreObject.getParameterInfo(i, &parameterInfo);
             slider->setRange(parameterInfo.min, parameterInfo.max);
+            slider->setValue(value);
         }
     }
 }
