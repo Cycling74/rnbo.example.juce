@@ -5,7 +5,7 @@
 class CustomAudioProcessor : public RNBO::JuceAudioProcessor {
 public:
     CustomAudioProcessor();
-    AudioProcessorEditor* createEditor() override;
+    juce::AudioProcessorEditor* createEditor() override;
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomAudioProcessor)
 };
