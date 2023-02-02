@@ -6,12 +6,7 @@
 
 #include "RNBO.h"
 #include "RNBO_Utils.h"
-#include "RNBO_JuceAudioProcessor.h"
-// #include "CustomAudioProcessor.h"
-
-#ifdef RNBO_INCLUDE_DESCRIPTION_FILE
-#include <rnbo_description.h>
-#endif
+#include "CustomAudioProcessor.h"
 
 #include <array>
 
@@ -142,15 +137,8 @@ public:
 		unloadRNBOAudioProcessor();
 
 		jassert(_audioProcessor.get() == nullptr);
-    nlohmann::json patcher_desc, presets;
 
-#ifdef RNBO_INCLUDE_DESCRIPTION_FILE
-    patcher_desc = RNBO::patcher_description;
-    presets = RNBO::patcher_presets;
-#endif
-
-		_audioProcessor = RNBO::make_unique<RNBO::JuceAudioProcessor>(patcher_desc, presets);
-		// _audioProcessor = RNBO::make_unique<CustomAudioProcessor>();
+		_audioProcessor = std::unique_ptr<CustomAudioProcessor>(CustomAudioProcessor::CreateDefault());
 		RNBO::CoreObject& rnboObject = _audioProcessor->getRnboObject();
 		rnboObject.setPatcherChangedHandler(this);
 
@@ -226,8 +214,7 @@ private:
 
 	std::unique_ptr<GrabFocusWhenShownComponentMovementWatcher> _keyboardFocusGrabber;
 
-	std::unique_ptr<RNBO::JuceAudioProcessor>	_audioProcessor;
-	// std::unique_ptr<CustomAudioProcessor>		_audioProcessor;
+	std::unique_ptr<CustomAudioProcessor>		_audioProcessor;
 	std::unique_ptr<AudioProcessorEditor>		_audioProcessorEditor;
 
 	// midi keyboard stuff

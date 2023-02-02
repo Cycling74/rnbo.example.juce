@@ -6,7 +6,7 @@ class CustomAudioEditor : public AudioProcessorEditor, private AudioProcessorLis
 {
 public:
     CustomAudioEditor(RNBO::JuceAudioProcessor* const p, RNBO::CoreObject& rnboObject);
-    ~CustomAudioEditor();
+    ~CustomAudioEditor() override;
     void paint (Graphics& g) override;
 
 private:
