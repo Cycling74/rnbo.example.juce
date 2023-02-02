@@ -17,14 +17,14 @@ endif()
 set(RNBO_EXPORT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export" CACHE FILEPATH "The path to all exported resources")
 set(RNBO_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo/" CACHE FILEPATH "The path to the the RNBO c++ source directory")
 set(RNBO_CLASS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo_source.cpp" CACHE FILEPATH "The file that holds the generated RNBO class code")
-set(INCLUDE_PRESETS ON CACHE BOOL "Should the project include presets if the presets.json file is found?")
-set(INCLUDE_SAMPLES ON CACHE BOOL "Should the project include samples if the dependencies.json file is found?")
+set(RNBO_PRESETS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/export/presets.json" CACHE FILEPATH "path to presets.json, set invalid to not include any presets")
 
+set(INCLUDE_SAMPLES ON CACHE BOOL "Should the project include samples if the dependencies.json file is found?")
 
 #write description header file if description.json exists, sets RNBO_INCLUDE_DESCRIPTION_FILE if the file exists
 include(${RNBO_CPP_DIR}/cmake/RNBODescriptionHeader.cmake)
 set(DESCRIPTION_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
-rnbo_write_description_header_if_exists(${RNBO_EXPORT_DIR}/description.json ${DESCRIPTION_INCLUDE_DIR})
+rnbo_write_description_header_if_exists(${RNBO_EXPORT_DIR}/description.json ${DESCRIPTION_INCLUDE_DIR} ${RNBO_PRESETS_FILE})
 include_directories(${DESCRIPTION_INCLUDE_DIR})
 
 
@@ -49,11 +49,6 @@ add_compile_definitions(JUCE_VST3_EMULATE_MIDI_CC_WITH_PARAMETERS=0)
 
 set(BINARY_RESOURCES "")
 set(HAS_BINARY_RESOURCES FALSE)
-
-if(INCLUDE_PRESETS AND EXISTS "${RNBO_EXPORT_DIR}/presets.json")
-  set(HAS_BINARY_RESOURCES TRUE)
-  list(APPEND BINARY_RESOURCES "${RNBO_EXPORT_DIR}/presets.json")
-endif()
 
 if(INCLUDE_SAMPLES AND EXISTS "${RNBO_EXPORT_DIR}/dependencies.json")
   set(HAS_BINARY_RESOURCES TRUE)

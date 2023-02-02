@@ -2,11 +2,16 @@
 #define MAINCOMPONENT_H_INCLUDED
 
 #include "JuceHeader.h"
+#include <json/json.hpp>
 
 #include "RNBO.h"
 #include "RNBO_Utils.h"
 #include "RNBO_JuceAudioProcessor.h"
 // #include "CustomAudioProcessor.h"
+
+#ifdef RNBO_INCLUDE_DESCRIPTION_FILE
+#include <rnbo_description.h>
+#endif
 
 #include <array>
 
@@ -84,6 +89,7 @@ public:
 		false) // hide advanced options
     {
 		loadRNBOAudioProcessor();
+
 		RNBO::CoreObject& rnboObject = _audioProcessor->getRnboObject();
 
 		_deviceManager.initialiseWithDefaultDevices(rnboObject.getNumInputChannels(), rnboObject.getNumOutputChannels());
@@ -136,8 +142,14 @@ public:
 		unloadRNBOAudioProcessor();
 
 		jassert(_audioProcessor.get() == nullptr);
+    nlohmann::json patcher_desc, presets;
 
-		_audioProcessor = RNBO::make_unique<RNBO::JuceAudioProcessor>();
+#ifdef RNBO_INCLUDE_DESCRIPTION_FILE
+    patcher_desc = RNBO::patcher_description;
+    presets = RNBO::patcher_presets;
+#endif
+
+		_audioProcessor = RNBO::make_unique<RNBO::JuceAudioProcessor>(patcher_desc, presets);
 		// _audioProcessor = RNBO::make_unique<CustomAudioProcessor>();
 		RNBO::CoreObject& rnboObject = _audioProcessor->getRnboObject();
 		rnboObject.setPatcherChangedHandler(this);
