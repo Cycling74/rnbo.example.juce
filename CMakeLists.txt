@@ -13,7 +13,7 @@ set(CMAKE_COLOR_MAKEFILE ON)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 set(RNBO_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo/" CACHE FILEPATH "The path to the the RNBO c++ source directory")
-set(RNBO_EXPORT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/description.json" CACHE FILEPATH "path to description.json")
+set(RNBO_EXPORT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/" CACHE FILEPATH "path to your epxort directory")
 
 set(RNBO_CLASS_NAME "rnbomatic")
 set(RNBO_CLASS_FILE "${RNBO_EXPORT_DIR}/rnbo_source.cpp")
