@@ -15,13 +15,12 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
 set(RNBO_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo/" CACHE FILEPATH "The path to the the RNBO c++ source directory")
 set(RNBO_EXPORT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/description.json" CACHE FILEPATH "path to description.json")
 
+set(RNBO_CLASS_NAME "rnbomatic")
 set(RNBO_CLASS_FILE "${RNBO_EXPORT_DIR}/rnbo_source.cpp")
 set(RNBO_DESCRIPTION_FILE "${RNBO_EXPORT_DIR}/description.json")
 set(RNBO_PRESETS_FILE "${RNBO_EXPORT_DIR}/presets.json")
-set(RNBO_BINARY_DATA_FILE "${RNBO_EXPORT_DIR}/rnbo_binary.cpp")
-
-set(RNBO_BINARY_DATA_STORAGE_NAME "RNBOPatcherBinaryData" CACHE STRING "name of the extern binary data")
-mark_as_advanced(RNBO_BINARY_DATA_STORAGE_NAME)
+set(RNBO_BINARY_DATA_FILE "${RNBO_EXPORT_DIR}/${RNBO_CLASS_NAME}_binary.cpp")
+set(RNBO_BINARY_DATA_STORAGE_NAME "${RNBO_CLASS_NAME}_binary")
 
 #write description header file if description.json exists, sets RNBO_INCLUDE_DESCRIPTION_FILE if the file exists
 include(${RNBO_CPP_DIR}/cmake/RNBODescriptionHeader.cmake)
