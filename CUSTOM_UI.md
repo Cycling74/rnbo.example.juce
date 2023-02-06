@@ -6,42 +6,8 @@ Please note, if you haven't yet followed the setup steps in `README.md`, you sho
 
 ## Switching to a Custom UI
 
-The files `src/CustomAudioProcessor` and `src/CustomAudioEditor` are starting points for a custom UI. `CustomAudioProcessor` returns `CustomAudioEditor` instead of the default `RNBO::JuceAudioProcessorEditor`, so the first step to making your own UI is to modify the code to use `CustomAudioProcessor` instead of the default `RNBO::JuceAudioProcessor`.
-
-### Standalone App Target
-To change the UI of the standalone app target, look in `src/MainComponent.cpp`. Find the declaration of the member variable `_audioProcessor` and switch it from `RNBO::JuceAudioProcessor` to `CustomAudioProcessor`.
-
-```cpp
-// std::unique_ptr<RNBO::JuceAudioProcessor>	_audioProcessor;
-std::unique_ptr<CustomAudioProcessor>		_audioProcessor;
-std::unique_ptr<AudioProcessorEditor>		_audioProcessorEditor;
-```
-
-In that same file, find the line in `loadRNBOAudioProcessor` where `_audioProcessor` is initialized, and change it to use the `CustomAudioProcessor`.
-
-```cpp
-// _audioProcessor = RNBO::make_unique<RNBO::JuceAudioProcessor>();
-_audioProcessor = RNBO::make_unique<CustomAudioProcessor>();
-```
-
-At the top of `MainComponent.cpp`, you'll also want to uncomment the line which will `#include` the header file we need
-
-```cpp
-#include "CustomAudioProcessor.h"
-```
-
-### Plugin Target
-To change the UI of the plugin target, look in `src/Plugin.cpp`. Change the `createPluginFilter` function to return the custom audio processor.
-
-```cpp
-AudioProcessor* JUCE_CALLTYPE createPluginFilter()
-{
-	// return new RNBO::JuceAudioProcessor();
-	return new CustomAudioProcessor();
-}
-```
-Just like we did for the Standalone App, at the top of `Plugin.cpp` you'll also want to uncomment the line that will include the `"CustomAudioProcessor.h"` header file.
-
+The files `src/CustomAudioProcessor` and `src/CustomAudioEditor` are starting points for a custom UI.
+`CustomAudioProcessor` returns `RNBO::JuceAudioProcessorEditor` by default, so the first step to making your own UI is to modify the code to return `CustomAudioProcessor` instead.
 
 ## Building a Custom UI with the Projucer
 

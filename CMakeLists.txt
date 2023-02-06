@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.15)
 # On M1 Macs, uncomment to enable universal binaries
 # set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 
+set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug Release")
+
 project(RNBO_JUCE_EXAMPLE VERSION 2.0.0)
 
 set(CMAKE_CXX_STANDARD 14) #JUCE requires 14
@@ -10,23 +12,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_COLOR_MAKEFILE ON)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
-endif()
-
-set(RNBO_EXPORT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export" CACHE FILEPATH "The path to all exported resources")
 set(RNBO_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo/" CACHE FILEPATH "The path to the the RNBO c++ source directory")
-set(RNBO_CLASS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/export/rnbo_source.cpp" CACHE FILEPATH "The file that holds the generated RNBO class code")
-set(INCLUDE_PRESETS ON CACHE BOOL "Should the project include presets if the presets.json file is found?")
-set(INCLUDE_SAMPLES ON CACHE BOOL "Should the project include samples if the dependencies.json file is found?")
+set(RNBO_EXPORT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/export/" CACHE FILEPATH "path to your epxort directory")
 
+set(RNBO_CLASS_NAME "rnbomatic")
+set(RNBO_CLASS_FILE "${RNBO_EXPORT_DIR}/rnbo_source.cpp")
+set(RNBO_DESCRIPTION_FILE "${RNBO_EXPORT_DIR}/description.json")
+set(RNBO_PRESETS_FILE "${RNBO_EXPORT_DIR}/presets.json")
+set(RNBO_BINARY_DATA_FILE "${RNBO_EXPORT_DIR}/${RNBO_CLASS_NAME}_binary.cpp")
+set(RNBO_BINARY_DATA_STORAGE_NAME "${RNBO_CLASS_NAME}_binary")
 
 #write description header file if description.json exists, sets RNBO_INCLUDE_DESCRIPTION_FILE if the file exists
 include(${RNBO_CPP_DIR}/cmake/RNBODescriptionHeader.cmake)
 set(DESCRIPTION_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
-rnbo_write_description_header_if_exists(${RNBO_EXPORT_DIR}/description.json ${DESCRIPTION_INCLUDE_DIR})
+rnbo_write_description_header_if_exists(${RNBO_DESCRIPTION_FILE} ${DESCRIPTION_INCLUDE_DIR} ${RNBO_PRESETS_FILE})
 include_directories(${DESCRIPTION_INCLUDE_DIR})
 
+if (EXISTS ${RNBO_BINARY_DATA_FILE})
+	add_definitions(-DRNBO_BINARY_DATA_STORAGE_NAME=${RNBO_BINARY_DATA_STORAGE_NAME})
+endif()
 
 # Include the JUCE submodule, needed for JUCE-based CMake definitions
 add_subdirectory(
@@ -46,28 +50,6 @@ add_subdirectory(
 # Comment out this line if you really want to emulate MIDI CC with Audio Parameters.
 # See the discussion here: https://forums.steinberg.net/t/vst3-and-midi-cc-pitfall/201879/11
 add_compile_definitions(JUCE_VST3_EMULATE_MIDI_CC_WITH_PARAMETERS=0)
-
-set(BINARY_RESOURCES "")
-set(HAS_BINARY_RESOURCES FALSE)
-
-if(INCLUDE_PRESETS AND EXISTS "${RNBO_EXPORT_DIR}/presets.json")
-  set(HAS_BINARY_RESOURCES TRUE)
-  list(APPEND BINARY_RESOURCES "${RNBO_EXPORT_DIR}/presets.json")
-endif()
-
-if(INCLUDE_SAMPLES AND EXISTS "${RNBO_EXPORT_DIR}/dependencies.json")
-  set(HAS_BINARY_RESOURCES TRUE)
-  list(APPEND BINARY_RESOURCES "${RNBO_EXPORT_DIR}/dependencies.json")
-  if(EXISTS "${RNBO_EXPORT_DIR}/media")
-    file(GLOB dependency_sources "${RNBO_EXPORT_DIR}/media/*")
-    list(APPEND BINARY_RESOURCES ${dependency_sources})
-  endif()
-endif()
-
-# Add binary resources if they exist
-if(HAS_BINARY_RESOURCES)
-  juce_add_binary_data(BinaryResources SOURCES ${BINARY_RESOURCES})
-endif()
 
 # setup your application, you can remove this include if you don't want to build applications
 include(${CMAKE_CURRENT_LIST_DIR}/App.cmake)
