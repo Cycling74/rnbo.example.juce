@@ -49,14 +49,15 @@ if (EXISTS ${RNBO_BINARY_DATA_FILE})
   target_sources(RNBOApp PRIVATE ${RNBO_BINARY_DATA_FILE})
 endif()
 
-include_directories(
-  "src"
-  "${RNBO_CPP_DIR}/"
-  "${RNBO_CPP_DIR}/src"
-  "${RNBO_CPP_DIR}/common/"
-  "${RNBO_CPP_DIR}/adapters/juce/"
-  "${RNBO_CPP_DIR}/src/3rdparty/"
-  )
+target_include_directories(RNBOApp
+  PRIVATE
+  ${RNBO_CPP_DIR}/
+  ${RNBO_CPP_DIR}/src
+  ${RNBO_CPP_DIR}/common/
+  ${RNBO_CPP_DIR}/adapters/juce/
+  ${RNBO_CPP_DIR}/src/3rdparty/
+  src
+)
 
 target_compile_definitions(RNBOApp
   PRIVATE

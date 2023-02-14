@@ -60,13 +60,15 @@ if (EXISTS ${RNBO_BINARY_DATA_FILE})
   target_sources(RNBOAudioPlugin PRIVATE ${RNBO_BINARY_DATA_FILE})
 endif()
 
-include_directories(
-  "${RNBO_CPP_DIR}/"
-  "${RNBO_CPP_DIR}/common/"
-  "${RNBO_CPP_DIR}/adapters/juce/"
-  "${RNBO_CPP_DIR}/src/3rdparty/"
-  "src"
-  )
+target_include_directories(RNBOAudioPlugin
+  PRIVATE
+  ${RNBO_CPP_DIR}/
+  ${RNBO_CPP_DIR}/src
+  ${RNBO_CPP_DIR}/common/
+  ${RNBO_CPP_DIR}/adapters/juce/
+  ${RNBO_CPP_DIR}/src/3rdparty/
+  src
+)
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
 # project, these might be passed in the 'Preprocessor Definitions' field. JUCE modules also make use
