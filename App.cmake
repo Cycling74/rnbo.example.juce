@@ -34,6 +34,8 @@ target_sources(RNBOApp
   PRIVATE
   src/Main.cpp
   src/MainComponent.cpp
+  src/CustomAudioEditor.cpp
+  src/CustomAudioProcessor.cpp
 
   ${RNBO_CLASS_FILE}
 
@@ -43,11 +45,17 @@ target_sources(RNBOApp
   ${RNBO_CPP_DIR}/adapters/juce/RNBO_JuceAudioProcessor.cpp
   )
 
+if (EXISTS ${RNBO_BINARY_DATA_FILE})
+  target_sources(RNBOApp PRIVATE ${RNBO_BINARY_DATA_FILE})
+endif()
+
 include_directories(
+  "src"
   "${RNBO_CPP_DIR}/"
   "${RNBO_CPP_DIR}/src"
   "${RNBO_CPP_DIR}/common/"
   "${RNBO_CPP_DIR}/adapters/juce/"
+  "${RNBO_CPP_DIR}/src/3rdparty/"
   )
 
 target_compile_definitions(RNBOApp
@@ -77,6 +85,3 @@ target_link_libraries(RNBOApp
   juce::juce_recommended_lto_flags
   juce::juce_recommended_warning_flags)
 
-if(HAS_BINARY_RESOURCES)
-  target_link_libraries(RNBOApp PRIVATE BinaryResources)
-endif()

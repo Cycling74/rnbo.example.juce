@@ -52,12 +52,20 @@ target_sources(RNBOAudioPlugin PRIVATE
   "${RNBO_CPP_DIR}/RNBO.cpp"
   ${RNBO_CLASS_FILE}
   src/Plugin.cpp
+  src/CustomAudioEditor.cpp
+  src/CustomAudioProcessor.cpp
   )
+
+if (EXISTS ${RNBO_BINARY_DATA_FILE})
+  target_sources(RNBOAudioPlugin PRIVATE ${RNBO_BINARY_DATA_FILE})
+endif()
 
 include_directories(
   "${RNBO_CPP_DIR}/"
   "${RNBO_CPP_DIR}/common/"
   "${RNBO_CPP_DIR}/adapters/juce/"
+  "${RNBO_CPP_DIR}/src/3rdparty/"
+  "src"
   )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
@@ -90,11 +98,6 @@ target_link_libraries(RNBOAudioPlugin
   juce::juce_recommended_lto_flags
   juce::juce_recommended_warning_flags
   )
-
-#samples and/or presets
-if (HAS_BINARY_RESOURCES)
-  target_link_libraries(RNBOAudioPlugin PRIVATE BinaryResources)
-endif()
 
 #TODO windows and linux
 if(APPLE)

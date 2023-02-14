@@ -2,10 +2,11 @@
 #define MAINCOMPONENT_H_INCLUDED
 
 #include "JuceHeader.h"
+#include <json/json.hpp>
 
 #include "RNBO.h"
 #include "RNBO_Utils.h"
-#include "RNBO_JuceAudioProcessor.h"
+#include "CustomAudioProcessor.h"
 
 #include <array>
 
@@ -83,6 +84,7 @@ public:
 		false) // hide advanced options
     {
 		loadRNBOAudioProcessor();
+
 		RNBO::CoreObject& rnboObject = _audioProcessor->getRnboObject();
 
 		_deviceManager.initialiseWithDefaultDevices(rnboObject.getNumInputChannels(), rnboObject.getNumOutputChannels());
@@ -136,15 +138,12 @@ public:
 
 		jassert(_audioProcessor.get() == nullptr);
 
-		_audioProcessor = RNBO::make_unique<RNBO::JuceAudioProcessor>();
+		_audioProcessor = std::unique_ptr<CustomAudioProcessor>(CustomAudioProcessor::CreateDefault());
 		RNBO::CoreObject& rnboObject = _audioProcessor->getRnboObject();
 		rnboObject.setPatcherChangedHandler(this);
 
 		_audioProcessorPlayer.setProcessor(_audioProcessor.get());
 
-		// The JUCE adapter RNBO::JuceAudioProcessor implements an AudioProcessorEditor,
-		// which you're free to use. Skip this if you want to create a custom UI, or if 
-		// you don't need an interface for your audio processor.
 		_audioProcessorEditor.reset(_audioProcessor->createEditorIfNeeded());
 		if (_audioProcessorEditor) {
 			addAndMakeVisible(_audioProcessorEditor.get());
@@ -215,7 +214,7 @@ private:
 
 	std::unique_ptr<GrabFocusWhenShownComponentMovementWatcher> _keyboardFocusGrabber;
 
-	std::unique_ptr<RNBO::JuceAudioProcessor>	_audioProcessor;
+	std::unique_ptr<CustomAudioProcessor>		_audioProcessor;
 	std::unique_ptr<AudioProcessorEditor>		_audioProcessorEditor;
 
 	// midi keyboard stuff
