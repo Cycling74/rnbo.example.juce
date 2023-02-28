@@ -9,6 +9,17 @@ Please note, if you haven't yet followed the setup steps in `README.md`, you sho
 The files `src/CustomAudioProcessor` and `src/CustomAudioEditor` are starting points for a custom UI.
 `CustomAudioProcessor` returns `RNBO::JuceAudioProcessorEditor` by default, so the first step to making your own UI is to modify the code to return `CustomAudioProcessor` instead.
 
+Open up `CustomAudioProcessor` and modify the section at the bottom so you are using the `CustomAudioEditor`.
+
+```cpp
+AudioProcessorEditor* CustomAudioProcessor::createEditor()
+{
+    //Change this to use your CustomAudioEditor
+    return new CustomAudioEditor (this, this->_rnboObject);
+    //return RNBO::JuceAudioProcessor::createEditor();
+}
+```
+
 ## Building a Custom UI with the Projucer
 
 ### A Word on the Projucer
