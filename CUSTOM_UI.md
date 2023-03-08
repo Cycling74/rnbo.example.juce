@@ -277,8 +277,9 @@ void RootComponent::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 
         if (param && param->getValue() != newVal)
         {
+            auto normalizedValue = coreObject.convertToNormalizedParameterValue(index, newVal);
             param->beginChangeGesture();
-            param->setValueNotifyingHost(newVal);
+            param->setValueNotifyingHost(normalizedValue);
             param->endChangeGesture();
         }
     }
@@ -300,9 +301,12 @@ Now open `RootComponent.cpp` and implement `updateSliderForParam` inside of the 
 ```cpp
 void RootComponent::updateSliderForParam(unsigned long index, double value)
 {
-    auto slider = slidersByParameterIndex.getReference(index);
+    if (processor == nullptr) return;
+    RNBO::CoreObject& coreObject = processor->getRnboObject();
+    auto denormalizedValue = coreObject.convertFromNormalizedParameterValue(index, value);
+    auto slider = slidersByParameterIndex.getReference((int) index);
     if (slider && (slider->getThumbBeingDragged() == -1)) {
-        slider->setValue(value, NotificationType::dontSendNotification);
+        slider->setValue(denormalizedValue, NotificationType::dontSendNotification);
     }
 }
 ```
