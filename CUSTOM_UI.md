@@ -148,7 +148,7 @@ CustomAudioEditor::CustomAudioEditor (RNBO::JuceAudioProcessor* const p, RNBO::C
     , _rnboObject(rnboObject)
     , _audioProcessor(p)
 {
-    p->AudioProcessor::addListener(this);
+    _audioProcessor->AudioProcessor::addListener(this);
 
     // _label.setText("Hi I'm Custom Interface", NotificationType::dontSendNotification);
     // _label.setBounds(0, 0, 400, 300);
