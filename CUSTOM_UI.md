@@ -9,6 +9,17 @@ Please note, if you haven't yet followed the setup steps in `README.md`, you sho
 The files `src/CustomAudioProcessor` and `src/CustomAudioEditor` are starting points for a custom UI.
 `CustomAudioProcessor` returns `RNBO::JuceAudioProcessorEditor` by default, so the first step to making your own UI is to modify the code to return `CustomAudioProcessor` instead.
 
+Open up `CustomAudioProcessor.cpp` and modify the section at the bottom so you are using the `CustomAudioEditor`.
+
+```cpp
+AudioProcessorEditor* CustomAudioProcessor::createEditor()
+{
+    //Change this to use your CustomAudioEditor
+    return new CustomAudioEditor (this, this->_rnboObject);
+    //return RNBO::JuceAudioProcessor::createEditor();
+}
+```
+
 ## Building a Custom UI with the Projucer
 
 ### A Word on the Projucer
@@ -137,7 +148,7 @@ CustomAudioEditor::CustomAudioEditor (RNBO::JuceAudioProcessor* const p, RNBO::C
     , _rnboObject(rnboObject)
     , _audioProcessor(p)
 {
-    p->AudioProcessor::addListener(this);
+    _audioProcessor->AudioProcessor::addListener(this);
 
     // _label.setText("Hi I'm Custom Interface", NotificationType::dontSendNotification);
     // _label.setBounds(0, 0, 400, 300);
@@ -266,8 +277,9 @@ void RootComponent::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 
         if (param && param->getValue() != newVal)
         {
+            auto normalizedValue = coreObject.convertToNormalizedParameterValue(index, newVal);
             param->beginChangeGesture();
-            param->setValueNotifyingHost(newVal);
+            param->setValueNotifyingHost(normalizedValue);
             param->endChangeGesture();
         }
     }
@@ -289,9 +301,12 @@ Now open `RootComponent.cpp` and implement `updateSliderForParam` inside of the 
 ```cpp
 void RootComponent::updateSliderForParam(unsigned long index, double value)
 {
-    auto slider = slidersByParameterIndex.getReference(index);
+    if (processor == nullptr) return;
+    RNBO::CoreObject& coreObject = processor->getRnboObject();
+    auto denormalizedValue = coreObject.convertFromNormalizedParameterValue(index, value);
+    auto slider = slidersByParameterIndex.getReference((int) index);
     if (slider && (slider->getThumbBeingDragged() == -1)) {
-        slider->setValue(value, NotificationType::dontSendNotification);
+        slider->setValue(denormalizedValue, NotificationType::dontSendNotification);
     }
 }
 ```
