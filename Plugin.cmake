@@ -77,6 +77,11 @@ target_include_directories(RNBOAudioPlugin
 # definitions will be visible both to your code, and also the JUCE module code, so for new
 # definitions, pick unique names that are unlikely to collide! This is a standard CMake command.
 
+set(RNBO_JUCE_PARAM_DEFAULT_NOTIFY 0)
+if (PLUGIN_PARAM_DEFAULT_NOTIFY)
+	set(RNBO_JUCE_PARAM_DEFAULT_NOTIFY 1)
+endif()
+
 target_compile_definitions(RNBOAudioPlugin
   PUBLIC
   # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
@@ -84,6 +89,7 @@ target_compile_definitions(RNBOAudioPlugin
   JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
   JUCE_VST3_CAN_REPLACE_VST2=0
   RNBO_JUCE_NO_CREATE_PLUGIN_FILTER=1 #don't have RNBO create its own createPluginFilter function, we'll create it ourselves
+  RNBO_JUCE_PARAM_DEFAULT_NOTIFY=${RNBO_JUCE_PARAM_DEFAULT_NOTIFY}
   )
 
 # `target_link_libraries` links libraries and JUCE modules to other libraries or executables. Here,
