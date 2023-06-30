@@ -2,6 +2,8 @@
 
 Creating a generative instrument or audio effect that you can use in Unity is possible with RNBO and this JUCE template. This guide will use a very simple synth plugin with a parameter that sets the frequency of the synth.
 
+Please note that the functionality of this Unity plugin is somewhat limited. For a more flexible Unity plugin, check out the [rnbo.unity.audioplugin](https://github.com/Cycling74/rnbo.unity.audioplugin) repo.
+
 ## Configuring your export and `Plugin.cmake`
 
 Let's imagine a very simple sine tone synth with a parameter named "freq" that sets the frequency of the synth. Something like this:
