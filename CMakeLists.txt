@@ -23,6 +23,7 @@ set(RNBO_DESCRIPTION_FILE "${RNBO_EXPORT_DIR}/description.json")
 set(RNBO_PRESETS_FILE "${RNBO_EXPORT_DIR}/presets.json")
 set(RNBO_BINARY_DATA_FILE "${RNBO_EXPORT_DIR}/${RNBO_CLASS_NAME}_binary.cpp")
 set(RNBO_BINARY_DATA_STORAGE_NAME "${RNBO_CLASS_NAME}_binary")
+set(PLUGIN_PARAM_DEFAULT_NOTIFY OFF CACHE BOOL "Should parameter changes from inside your rnbo patch send output by default? Sometimes breaks automation.")
 
 #write description header file if description.json exists, sets RNBO_INCLUDE_DESCRIPTION_FILE if the file exists
 include(${RNBO_CPP_DIR}/cmake/RNBODescriptionHeader.cmake)
