@@ -1,5 +1,5 @@
-# build VST3 and Unity for all platforms, add AU on MacOS
-set(PLUGIN_FORMATS VST3 Unity)
+# build VST3 for all platforms, add AU on MacOS
+set(PLUGIN_FORMATS VST3)
 if (CMAKE_SYSTEM_NAME STREQUAL Darwin)
   LIST(APPEND PLUGIN_FORMATS AU)
 endif()
