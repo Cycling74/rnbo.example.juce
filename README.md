@@ -130,8 +130,8 @@ Hopefully, this will resolve the issue.
 ### MIDI CC and VST3
 VST3 introduced some changes to the way plugins handle MIDI data. One way to make newer VST3 plugins behave more like VST2 is to create Parameters for each MIDI CC value on each MIDI channel. You can dip your toes into the [full discussion](https://forums.steinberg.net/t/vst3-and-midi-cc-pitfall/201879/11) if you want, but we disable this behavior by default. If you really want it, you can enable it by commenting out the appropriate line in `CMakeLists.txt`.
 
-### Working with your Unity Plugin
-You may have noticed that `Plugin.cmake` is currently set up to build you a Unity plugin. If you'd like more a little information on using that Plugin in Unity, check out our [starter guide](UNITY.md).
+### Working with your RNBO Plugin in Unity
+You can build a dedicated audio plugin for Unity using our [RNBO Unity Audio Plugin repository](https://github.com/Cycling74/rnbo.unity.audioplugin), which also provides an API that facilitates working with your RNBO export in your C# scripting. Check out that repository for more information.
 
 ## Customizing the Project
 
