@@ -77,9 +77,9 @@ target_include_directories(RNBOAudioPlugin
 # definitions will be visible both to your code, and also the JUCE module code, so for new
 # definitions, pick unique names that are unlikely to collide! This is a standard CMake command.
 
-set(RNBO_JUCE_PARAM_DEFAULT_NOTIFY 0)
-if (PLUGIN_PARAM_DEFAULT_NOTIFY)
-	set(RNBO_JUCE_PARAM_DEFAULT_NOTIFY 1)
+set(RNBO_JUCE_PARAM_DEFAULT_NOTIFY 1)
+if (NOT PLUGIN_PARAM_DEFAULT_NOTIFY)
+	set(RNBO_JUCE_PARAM_DEFAULT_NOTIFY 0)
 endif()
 
 target_compile_definitions(RNBOAudioPlugin
