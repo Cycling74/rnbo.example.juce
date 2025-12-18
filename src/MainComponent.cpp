@@ -82,6 +82,9 @@ public:
 		false, // ability to select midi output device
 		false, // treat channels as stereo pairs
 		false) // hide advanced options
+    , _presetLabel("Presets:", "Presets:")
+    , _loadPreset("load")
+    , _savePreset("save")
     {
 		loadRNBOAudioProcessor();
 
@@ -111,7 +114,17 @@ public:
 
 		// Only add the device selector if we're running as a standalone application
 		if (JUCEApplicationBase::isStandaloneApp()) {
-			addAndMakeVisible (_deviceSelectorComponent);
+            addAndMakeVisible(_presetLabel);
+            addAndMakeVisible(_loadPreset);
+            addAndMakeVisible(_savePreset);
+
+            _loadPreset.changeWidthToFitText(20);
+            _savePreset.changeWidthToFitText(20);
+
+            _loadPreset.onClick = [this]() { loadPreset(); };
+            _savePreset.onClick = [this]() { savePreset(); };
+
+            addAndMakeVisible (_deviceSelectorComponent);
 			_includesDeviceSelector = true;
 		}
 
@@ -196,14 +209,94 @@ public:
 		int usedSelectorWidth = 0;
 
 		if (_includesDeviceSelector) {
+            _presetLabel.setBounds(5, 5, _presetLabel.getFont().getStringWidth(_presetLabel.getText()) + 10, 20);
+            _loadPreset.setTopLeftPosition(_presetLabel.getWidth() + 10, 5);
+            _savePreset.setTopLeftPosition(_presetLabel.getWidth() + 5 + _loadPreset.getWidth() + 10, 5);
 			usedSelectorWidth = std::min(getWidth(), selectorWidth);
-			_deviceSelectorComponent.setBounds(0, 0, usedSelectorWidth, getHeight());
+			_deviceSelectorComponent.setBounds(0, _loadPreset.getHeight() + 10, usedSelectorWidth, getHeight());
 		}
 
 		if (_audioProcessorEditor) {
 			_audioProcessorEditor->setBounds(usedSelectorWidth, 0, getWidth() - usedSelectorWidth, getHeight() - keysHeight);
 		}
 		_midiKeyboardComponent.setBounds(usedSelectorWidth, getHeight() - keysHeight, getWidth() - usedSelectorWidth, keysHeight);
+    }
+
+    void loadPreset() {
+        stateFileChooser = std::make_unique<FileChooser> (TRANS("Load a saved state"),
+                                                          getLastFile(),
+                                                          getFilePatterns ("rnbo"));
+        auto flags = FileBrowserComponent::openMode
+                   | FileBrowserComponent::canSelectFiles;
+
+        stateFileChooser->launchAsync (flags, [this] (const FileChooser& fc)
+        {
+            if (fc.getResult() == File{})
+                return;
+
+            setLastFile (fc);
+
+            MemoryBlock data;
+
+            if (fc.getResult().loadFileAsData (data))
+                _audioProcessor->setStateInformation (data.getData(), (int) data.getSize());
+            else
+                AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+                                                  TRANS("Error whilst loading"),
+                                                  TRANS("Couldn't read from the specified file!"));
+        });
+    }
+
+    static String getFilePatterns (const String& fileSuffix)
+    {
+        if (fileSuffix.isEmpty())
+            return {};
+
+        return (fileSuffix.startsWithChar ('.') ? "*" : "*.") + fileSuffix;
+    }
+    
+    File getLastFile() const
+    {
+        File f;
+
+        if (settings != nullptr)
+            f = File (settings->getValue ("lastStateFile"));
+
+        if (f == File())
+            f = File::getSpecialLocation (File::userDocumentsDirectory);
+
+        return f;
+    }
+
+    void setLastFile (const FileChooser& fc)
+    {
+        if (settings != nullptr)
+            settings->setValue ("lastStateFile", fc.getResult().getFullPathName());
+    }
+
+    void savePreset() {
+        stateFileChooser = std::make_unique<FileChooser> (TRANS("Save Preset"),
+                                                          getLastFile(),
+                                                          getFilePatterns ("rnbo"));
+        auto flags = FileBrowserComponent::saveMode
+                   | FileBrowserComponent::canSelectFiles
+                   | FileBrowserComponent::warnAboutOverwriting;
+
+        stateFileChooser->launchAsync (flags, [this] (const FileChooser& fc)
+        {
+            if (fc.getResult() == File{})
+                return;
+
+            setLastFile (fc);
+
+            MemoryBlock data;
+            _audioProcessor->getStateInformation (data);
+
+            if (! fc.getResult().replaceWithData (data.getData(), data.getSize()))
+                AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+                                                  TRANS("Error whilst saving"),
+                                                  TRANS("Couldn't write to the specified file!"));
+        });
     }
 
 private:
@@ -224,6 +317,13 @@ private:
 	// Audio device chooser
 	AudioDeviceSelectorComponent _deviceSelectorComponent;
 	bool _includesDeviceSelector = false;
+
+    juce::Label         _presetLabel;
+    juce::TextButton    _loadPreset;
+    juce::TextButton    _savePreset;
+
+    std::unique_ptr<FileChooser> stateFileChooser;
+    OptionalScopedPointer<PropertySet> settings;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
