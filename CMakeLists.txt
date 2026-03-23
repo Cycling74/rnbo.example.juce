@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.22) #JUCE 8 requires CMake 3.22+
 
 if (APPLE AND CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
     set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Universal architectures")
