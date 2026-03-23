@@ -102,11 +102,11 @@ public:
 
 		// let's listen to all midi inputs
 		// enable all midi inputs
-		StringArray midiInputDevices = MidiInput::getDevices();
+		auto midiInputDevices = MidiInput::getAvailableDevices();
 		for (const auto& input : midiInputDevices) {
-			_deviceManager.setMidiInputEnabled(input, true);
+			_deviceManager.setMidiInputDeviceEnabled(input.identifier, true);
 		}
-		_deviceManager.addMidiInputCallback("", &_audioProcessorPlayer);
+		_deviceManager.addMidiInputDeviceCallback("", &_audioProcessorPlayer);
 
 		// setup the midi keyboard
 		_midiKeyboardState.addListener(&_audioProcessorPlayer.getMidiMessageCollector());
