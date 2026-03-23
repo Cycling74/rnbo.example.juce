@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.22)
 
 if (APPLE AND CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
     set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Universal architectures")
@@ -8,7 +8,7 @@ set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: 
 
 project(RNBO_JUCE_EXAMPLE VERSION 2.0.0)
 
-set(CMAKE_CXX_STANDARD 14) #JUCE requires 14
+set(CMAKE_CXX_STANDARD 17) #JUCE 8 requires 17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_COLOR_MAKEFILE ON)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
