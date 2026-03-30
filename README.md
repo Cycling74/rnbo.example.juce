@@ -4,6 +4,8 @@ So you want to build your own DAW or a Plugin? This template should get you star
 
 This project is based on the cross-platform JUCE framework for handling audio processing. You have the option of using JUCE to manage your UI as well. Please be aware that the JUCE has its own license terms (mostly GPL with the availability of commercial licenses). See their [website](http://www.juce.com/) for further details.
 
+> **Alert (macOS users):** If you are using macOS 15+, you may have trouble building the `main` branch due to an incompatibility with the JUCE version it uses. Please use the [`juce8` branch](https://github.com/Cycling74/rnbo.example.juce/tree/juce8) instead.
+
 ## Prerequisites
 
 - Download and install [CMake](https://cmake.org/download/). Version 3.18 or higher is required. On MacOS, we recommend installing CMake with [Homebrew](https://brew.sh/)
