@@ -66,6 +66,16 @@ export/
 ├─ README.md
 ```
 
+**Note:** By default, this project expects the exported source file to be named `rnbo_source.cpp`.
+
+- To use this default name, set the **"Export Name"** field in RNBO's export sidebar to `rnbo_source.cpp`.
+- To use a different filename, update the value in `CMakeLists.txt` (line 17) to match your file:
+
+```cmake
+set(RNBO_CLASS_FILE_NAME "my_great_synth.cpp" CACHE STRING "the name of your RNBO class file")
+```
+If you've made such a change and have already built the project, delete the `build` folder before rebuilding to ensure the change takes effect.
+
 Whenever you make a change to your RNBO patch, remember to export the source code again to update this file. Now that you've exported your RNBO code, it's time to build. This project uses CMake, which gives us the flexibility of using whatever build system we want. Start by moving to the build directory.
 
 ```sh
