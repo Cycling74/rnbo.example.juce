@@ -16,6 +16,10 @@ endif()
 # the formats specified by the FORMATS arguments. This function accepts many optional arguments.
 # Check the readme at `docs/CMake API.md` in the JUCE repo for the full list.
 
+if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
+  set(_needs_web_browser NEEDS_WEB_BROWSER TRUE)
+endif()
+
 juce_add_plugin(RNBOAudioPlugin
   # VERSION ...                        # Set this if the plugin version is different to the project version
   # ICON_BIG ...                       # ICON_* arguments specify a path to an image file to use as an icon for the Standalone
@@ -30,7 +34,8 @@ juce_add_plugin(RNBOAudioPlugin
   PLUGIN_MANUFACTURER_CODE "Exmp"      # A four-character manufacturer id with at least one upper-case character
   PLUGIN_CODE "Rnb0"                   # A unique four-character plugin id with at least one upper-case character
   FORMATS ${PLUGIN_FORMATS}            # The formats to build. Other valid formats are: AAX Unity VST AU AUv3
-  PRODUCT_NAME "RNBO Plugin")          # The name of the final executable, which can differ from the target name
+  PRODUCT_NAME "RNBO Plugin"           # The name of the final executable, which can differ from the target name
+  ${_needs_web_browser})
 
 # `juce_generate_juce_header` will create a JuceHeader.h for a given target, which will be generated
 # into your build tree. This should be included with `#include <JuceHeader.h>`. The include path for
@@ -53,6 +58,7 @@ target_sources(RNBOAudioPlugin PRIVATE
   ${RNBO_CLASS_FILE}
   src/Plugin.cpp
   src/CustomAudioEditor.cpp
+  src/WebBrowserAudioEditor.cpp
   src/CustomAudioProcessor.cpp
   )
 
@@ -84,8 +90,6 @@ endif()
 
 target_compile_definitions(RNBOAudioPlugin
   PUBLIC
-  # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
-  JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
   JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
   JUCE_VST3_CAN_REPLACE_VST2=0
   RNBO_JUCE_NO_CREATE_PLUGIN_FILTER=1 #don't have RNBO create its own createPluginFilter function, we'll create it ourselves
@@ -98,9 +102,18 @@ target_compile_definitions(RNBOAudioPlugin
 # linked automatically. If we'd generated a binary data target above, we would need to link to it
 # here too. This is a standard CMake command.
 
+if(RNBO_EDITOR_MODE STREQUAL "NATIVE")
+  target_compile_definitions(RNBOAudioPlugin PRIVATE RNBO_EDITOR_NATIVE)
+elseif(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
+  target_compile_definitions(RNBOAudioPlugin PRIVATE RNBO_EDITOR_WEBVIEW)
+  target_compile_definitions(RNBOAudioPlugin PUBLIC JUCE_WEB_BROWSER=1)
+  target_link_libraries(RNBOAudioPlugin PRIVATE RNBOUIData)
+endif()
+
 target_link_libraries(RNBOAudioPlugin
   PRIVATE
   juce::juce_audio_utils
+  juce::juce_gui_extra
   PUBLIC
   juce::juce_recommended_config_flags
   juce::juce_recommended_lto_flags

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Kink Synth</title>
+    </head>
+    <body>
+        <h1>Kink Synth</h1>
+        <div id="app">
+            <div class="param">
+                <div class="param-header">
+                <span class="param-name">Kink 1</span>
+                <span class="param-value" id="val-kink1">0.000</span>
+                </div>
+                <input type="range" id="slider-kink1" min="0" max="1" step="0.001" value="0">
+            </div>
+
+            <div class="param">
+                <div class="param-header">
+                <span class="param-name">Kink 2</span>
+                <span class="param-value" id="val-kink2">0.000</span>
+                </div>
+                <input type="range" id="slider-kink2" min="0" max="1" step="0.001" value="0">
+            </div>
+
+            <div class="param">
+                <div class="param-header">
+                <span class="param-name">Kink 3</span>
+                <span class="param-value" id="val-kink3">0.000</span>
+                </div>
+                <input type="range" id="slider-kink3" min="0" max="1" step="0.001" value="0">
+            </div>
+        </div>
+
+        <script type="module">
+            import { getSliderState } from './index.js';
+
+            function bindParam(name, sliderId, valueId) {
+                const slider  = document.getElementById(sliderId);
+                const display = document.getElementById(valueId);
+                const state   = getSliderState(name);
+
+                // C++ → JS: backend changed the value (automation, preset load, etc.)
+                state.valueChangedEvent.addListener(() => {
+                    const norm = state.getNormalisedValue();
+                    slider.value = norm;
+                    slider.style.setProperty('--fill', (norm * 100) + '%');
+                    display.textContent = state.getScaledValue().toFixed(3);
+                });
+
+                // JS → C++: notify the backend when the user starts and finishes dragging
+                slider.addEventListener('mousedown',  () => state.sliderDragStarted());
+                slider.addEventListener('touchstart', () => state.sliderDragStarted(), { passive: true });
+                slider.addEventListener('mouseup',    () => state.sliderDragEnded());
+                slider.addEventListener('touchend',   () => state.sliderDragEnded());
+
+                // JS → C++: send the new value to the backend as the user drags
+                slider.addEventListener('input', () => {
+                    const norm = parseFloat(slider.value);
+                    state.setNormalisedValue(norm);
+                    slider.style.setProperty('--fill', (norm * 100) + '%');
+                    display.textContent = state.getScaledValue().toFixed(3);
+                });
+            }
+
+            bindParam('kink1', 'slider-kink1', 'val-kink1');
+            bindParam('kink2', 'slider-kink2', 'val-kink2');
+            bindParam('kink3', 'slider-kink3', 'val-kink3');
+        </script>
+    </body>
+</html>

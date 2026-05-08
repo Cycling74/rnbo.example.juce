@@ -1,30 +1,55 @@
 #include "CustomAudioEditor.h"
 
-CustomAudioEditor::CustomAudioEditor (RNBO::JuceAudioProcessor* const p, RNBO::CoreObject& rnboObject)
+CustomAudioEditor::CustomAudioEditor (RNBO::JuceAudioProcessor* const p,
+                                      RNBO::CoreObject& rnboObject)
     : AudioProcessorEditor (p)
-    , _rnboObject(rnboObject)
-    , _audioProcessor(p)
+    , _audioProcessor (p)
+    , _rnboObject (rnboObject)
+    , _kink1Attachment (static_cast<RangedAudioParameter&> (*p->getParameters()[0]), _kink1Slider)
+    , _kink2Attachment (static_cast<RangedAudioParameter&> (*p->getParameters()[1]), _kink2Slider)
+    , _kink3Attachment (static_cast<RangedAudioParameter&> (*p->getParameters()[2]), _kink3Slider)
 {
-    _audioProcessor->AudioProcessor::addListener(this);
+    for (auto* s : { &_kink1Slider, &_kink2Slider, &_kink3Slider })
+    {
+        s->setSliderStyle (Slider::LinearHorizontal);
+        s->setTextBoxStyle (Slider::TextBoxRight, false, 60, 20);
+        addAndMakeVisible (s);
+    }
 
-    _label.setText("Hi I'm Custom Interface", NotificationType::dontSendNotification);
-    _label.setBounds(0, 0, 400, 300);
-    _label.setColour(Label::textColourId, Colours::black);
-    addAndMakeVisible(_label);
-    setSize (_label.getWidth(), _label.getHeight());
+    auto setupLabel = [this] (Label& label, const char* text)
+    {
+        label.setText (text, dontSendNotification);
+        label.setJustificationType (Justification::centredLeft);
+        addAndMakeVisible (label);
+    };
+
+    setupLabel (_kink1Label, "Kink 1");
+    setupLabel (_kink2Label, "Kink 2");
+    setupLabel (_kink3Label, "Kink 3");
+
+    setSize (400, 160);
 }
 
-CustomAudioEditor::~CustomAudioEditor()
-{
-    _audioProcessor->AudioProcessor::removeListener(this);
-}
+CustomAudioEditor::~CustomAudioEditor() = default;
 
 void CustomAudioEditor::paint (Graphics& g)
 {
-    g.fillAll(Colours::white);
+    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
 }
 
-void CustomAudioEditor::audioProcessorParameterChanged (AudioProcessor*, int parameterIndex, float value)
+void CustomAudioEditor::resized()
 {
-    // Handle parameter changes here
+    auto area = getLocalBounds().reduced (16);
+    const int rowHeight = area.getHeight() / 3;
+
+    auto layoutRow = [&] (Label& label, Slider& slider)
+    {
+        auto row = area.removeFromTop (rowHeight);
+        label.setBounds (row.removeFromLeft (60));
+        slider.setBounds (row);
+    };
+
+    layoutRow (_kink1Label, _kink1Slider);
+    layoutRow (_kink2Label, _kink2Slider);
+    layoutRow (_kink3Label, _kink3Slider);
 }
