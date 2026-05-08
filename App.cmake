@@ -8,13 +8,18 @@
 # up by default. This function accepts many optional arguments. Check the readme at
 # `docs/CMake API.md` in the JUCE repo for the full list.
 
+if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
+  set(_needs_web_browser NEEDS_WEB_BROWSER TRUE)
+endif()
+
 juce_add_gui_app(RNBOApp
   # VERSION ...                       # Set this if the app version is different to the project version
   # ICON_BIG ...                      # ICON_* arguments specify a path to an image file to use as an icon
   # ICON_SMALL ...
   # DOCUMENT_EXTENSIONS ...           # Specify file extensions that should be associated with this app
   COMPANY_NAME "cycling74"            # Specify the name of the app's author
-  PRODUCT_NAME "RNBO App Example")    # The name of the final executable, which can differ from the target name
+  PRODUCT_NAME "RNBO App Example"     # The name of the final executable, which can differ from the target name
+  ${_needs_web_browser})
 
 # `juce_generate_juce_header` will create a JuceHeader.h for a given target, which will be generated
 # into your build tree. This should be included with `#include <JuceHeader.h>`. The include path for
@@ -35,6 +40,7 @@ target_sources(RNBOApp
   src/Main.cpp
   src/MainComponent.cpp
   src/CustomAudioEditor.cpp
+  src/WebBrowserAudioEditor.cpp
   src/CustomAudioProcessor.cpp
 
   ${RNBO_CLASS_FILE}
@@ -61,8 +67,6 @@ target_include_directories(RNBOApp
 
 target_compile_definitions(RNBOApp
   PRIVATE
-  # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
-  JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_gui_app` call
   JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_gui_app` call
   JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:RNBOApp,JUCE_PRODUCT_NAME>"
   JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:RNBOApp,JUCE_VERSION>")
@@ -72,6 +76,13 @@ target_compile_definitions(RNBOApp
 # dependencies are resolved automatically, so `juce_core`, `juce_events` and so on will also be
 # linked automatically. If we'd generated a binary data target above, we would need to link to it
 # here too. This is a standard CMake command.
+if(RNBO_EDITOR_MODE STREQUAL "NATIVE")
+  target_compile_definitions(RNBOApp PRIVATE RNBO_EDITOR_NATIVE)
+elseif(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
+  target_compile_definitions(RNBOApp PRIVATE RNBO_EDITOR_WEBVIEW JUCE_WEB_BROWSER=1)
+  target_link_libraries(RNBOApp PRIVATE RNBOUIData)
+endif()
+
 target_link_libraries(RNBOApp
   PRIVATE
   juce::juce_gui_extra

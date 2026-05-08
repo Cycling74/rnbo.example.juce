@@ -1,5 +1,9 @@
 #include "CustomAudioProcessor.h"
+#if defined(RNBO_EDITOR_NATIVE)
 #include "CustomAudioEditor.h"
+#elif defined(RNBO_EDITOR_WEBVIEW)
+#include "WebBrowserAudioEditor.h"
+#endif
 #include <json/json.hpp>
 
 #ifdef RNBO_INCLUDE_DESCRIPTION_FILE
@@ -36,8 +40,12 @@ CustomAudioProcessor::CustomAudioProcessor(
 
 AudioProcessorEditor* CustomAudioProcessor::createEditor()
 {
-    //Change this to use your CustomAudioEditor
-    //return new CustomAudioEditor (this, this->_rnboObject);
+#if defined(RNBO_EDITOR_NATIVE)
+    return new CustomAudioEditor (this, this->_rnboObject);
+#elif defined(RNBO_EDITOR_WEBVIEW)
+    return new WebBrowserAudioEditor (this, this->_rnboObject);
+#else
     return RNBO::JuceAudioProcessor::createEditor();
+#endif
 }
 

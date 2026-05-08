@@ -25,6 +25,13 @@ set(RNBO_BINARY_DATA_FILE "${RNBO_EXPORT_DIR}/${RNBO_CLASS_NAME}_binary.cpp")
 set(RNBO_BINARY_DATA_STORAGE_NAME "${RNBO_CLASS_NAME}_binary")
 set(PLUGIN_PARAM_DEFAULT_NOTIFY ON CACHE BOOL "Should parameter changes from inside your rnbo patch send output by default?")
 
+# Choose which editor is shown when the plugin/app opens.
+#   DEFAULT  — the generic editor provided by RNBO::JuceAudioProcessor
+#   NATIVE   — native JUCE controls (src/CustomAudioEditor)
+#   WEBVIEW  — WebBrowserComponent UI (src/WebBrowserAudioEditor)
+set(RNBO_EDITOR_MODE "NATIVE" CACHE STRING "UI editor: DEFAULT (RNBO built-in), NATIVE (JUCE controls), WEBVIEW (WebBrowserComponent)")
+set_property(CACHE RNBO_EDITOR_MODE PROPERTY STRINGS DEFAULT NATIVE WEBVIEW)
+
 #write description header file if description.json exists, sets RNBO_INCLUDE_DESCRIPTION_FILE if the file exists
 include(${RNBO_CPP_DIR}/cmake/RNBODescriptionHeader.cmake)
 set(DESCRIPTION_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
@@ -41,6 +48,17 @@ add_subdirectory(
   ${CMAKE_BINARY_DIR}/juce
   EXCLUDE_FROM_ALL #don't build examples etc, also don't install
 )
+
+# Compile web UI files into the binary — only needed for the WEBVIEW editor.
+if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
+    juce_add_binary_data(RNBOUIData
+        NAMESPACE RNBOUIData
+        SOURCES
+        ${CMAKE_CURRENT_LIST_DIR}/src/webui/index.html
+        ${CMAKE_CURRENT_LIST_DIR}/thirdparty/juce/modules/juce_gui_extra/native/javascript/index.js
+        ${CMAKE_CURRENT_LIST_DIR}/thirdparty/juce/modules/juce_gui_extra/native/javascript/check_native_interop.js
+    )
+endif()
 
 # Or, instead, use Conan to get JUCE, should speed up clean builds
 # include(${RNBO_CPP_DIR}/cmake/RNBOJuce.cmake)
