@@ -13,6 +13,95 @@
         "boxes": [
             {
                 "box": {
+                    "id": "obj-11",
+                    "maxclass": "live.slider",
+                    "numinlets": 1,
+                    "numoutlets": 2,
+                    "orientation": 1,
+                    "outlettype": [ "", "float" ],
+                    "param_connect": "rnbo~::kink3",
+                    "parameter_enable": 1,
+                    "patching_rect": [ 167.0, 197.0, 111.0, 41.0 ],
+                    "saved_attribute_attributes": {
+                        "valueof": {
+                            "parameter_initial": [ 0.0 ],
+                            "parameter_initial_enable": 1,
+                            "parameter_longname": "kink3",
+                            "parameter_mmax": 1.0,
+                            "parameter_modmode": 3,
+                            "parameter_shortname": "kink3",
+                            "parameter_type": 0,
+                            "parameter_unitstyle": 1
+                        }
+                    },
+                    "varname": "kink1[2]"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-10",
+                    "maxclass": "live.slider",
+                    "numinlets": 1,
+                    "numoutlets": 2,
+                    "orientation": 1,
+                    "outlettype": [ "", "float" ],
+                    "param_connect": "rnbo~::kink2",
+                    "parameter_enable": 1,
+                    "patching_rect": [ 167.0, 139.0, 111.0, 41.0 ],
+                    "saved_attribute_attributes": {
+                        "valueof": {
+                            "parameter_initial": [ 0.0 ],
+                            "parameter_initial_enable": 1,
+                            "parameter_longname": "kink2",
+                            "parameter_mmax": 1.0,
+                            "parameter_modmode": 3,
+                            "parameter_shortname": "kink2",
+                            "parameter_type": 0,
+                            "parameter_unitstyle": 1
+                        }
+                    },
+                    "varname": "kink1[1]"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-9",
+                    "maxclass": "live.slider",
+                    "numinlets": 1,
+                    "numoutlets": 2,
+                    "orientation": 1,
+                    "outlettype": [ "", "float" ],
+                    "param_connect": "rnbo~::kink1",
+                    "parameter_enable": 1,
+                    "patching_rect": [ 167.0, 81.0, 111.0, 41.0 ],
+                    "saved_attribute_attributes": {
+                        "valueof": {
+                            "parameter_initial": [ 0.0 ],
+                            "parameter_initial_enable": 1,
+                            "parameter_longname": "kink1",
+                            "parameter_mmax": 1.0,
+                            "parameter_modmode": 3,
+                            "parameter_shortname": "kink1",
+                            "parameter_type": 0,
+                            "parameter_unitstyle": 1
+                        }
+                    },
+                    "varname": "kink1"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-7",
+                    "maxclass": "toggle",
+                    "numinlets": 1,
+                    "numoutlets": 1,
+                    "outlettype": [ "int" ],
+                    "parameter_enable": 0,
+                    "patching_rect": [ 298.0, 81.0, 24.0, 24.0 ]
+                }
+            },
+            {
+                "box": {
                     "attr": "automate",
                     "id": "obj-4",
                     "maxclass": "attrui",
@@ -20,7 +109,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 145.0, 61.0, 150.0, 22.0 ]
+                    "patching_rect": [ 298.0, 122.0, 150.0, 22.0 ]
                 }
             },
             {
@@ -32,7 +121,7 @@
                     "numoutlets": 5,
                     "outlettype": [ "signal", "signal", "", "float", "list" ],
                     "parameter_enable": 1,
-                    "patching_rect": [ 145.0, 135.0, 48.0, 136.0 ],
+                    "patching_rect": [ 298.0, 196.0, 48.0, 136.0 ],
                     "saved_attribute_attributes": {
                         "valueof": {
                             "parameter_longname": "live.gain~",
@@ -53,7 +142,7 @@
                     "maxclass": "ezdac~",
                     "numinlets": 2,
                     "numoutlets": 0,
-                    "patching_rect": [ 146.5, 290.0, 45.0, 45.0 ]
+                    "patching_rect": [ 299.0, 351.0, 45.0, 45.0 ]
                 }
             },
             {
@@ -100,7 +189,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "rnbo",
-                        "rect": [ 193.0, 458.0, 917.0, 480.0 ],
+                        "rect": [ 162.0, 195.0, 917.0, 449.0 ],
                         "default_fontname": "Lato",
                         "title": "three-param-kink",
                         "boxes": [
@@ -2852,7 +2941,7 @@
                             }
                         ]
                     },
-                    "patching_rect": [ 145.0, 99.0, 168.0, 22.0 ],
+                    "patching_rect": [ 298.0, 160.0, 168.0, 22.0 ],
                     "rnboattrcache": {
                         "kink1": {
                             "label": "kink1",
@@ -2904,13 +2993,13 @@
                                 "value": 0.0
                             },
                             "kink2": {
-                                "value": 0.0
+                                "value": 0.8355205599300087
                             },
                             "kink1": {
-                                "value": 0.0
+                                "value": 0.8885707468384627
                             },
                             "kink3": {
-                                "value": 0.5727782905253953
+                                "value": 0.9255950094746556
                             },
                             "__presetid": "three-param-kink"
                         },
@@ -2931,13 +3020,13 @@
                                             "value": 0.0
                                         },
                                         "kink2": {
-                                            "value": 0.0
+                                            "value": 0.8355205599300087
                                         },
                                         "kink1": {
-                                            "value": 0.0
+                                            "value": 0.8885707468384627
                                         },
                                         "kink3": {
-                                            "value": 0.5727782905253953
+                                            "value": 0.9255950094746556
                                         },
                                         "__presetid": "three-param-kink"
                                     },
@@ -2987,11 +3076,20 @@
                     "destination": [ "obj-2", 0 ],
                     "source": [ "obj-5", 0 ]
                 }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-4", 0 ],
+                    "source": [ "obj-7", 0 ]
+                }
             }
         ],
         "parameters": {
             "obj-1": [ "rnbo~", "rnbo~", 0 ],
+            "obj-10": [ "kink2", "kink2", 0 ],
+            "obj-11": [ "kink3", "kink3", 0 ],
             "obj-5": [ "live.gain~", "live.gain~", 0 ],
+            "obj-9": [ "kink1", "kink1", 0 ],
             "parameterbanks": {
                 "0": {
                     "index": 0,
