@@ -24,7 +24,7 @@ juce_add_plugin(RNBOAudioPlugin
   # VERSION ...                        # Set this if the plugin version is different to the project version
   # ICON_BIG ...                       # ICON_* arguments specify a path to an image file to use as an icon for the Standalone
   # ICON_SMALL ...
-  COMPANY_NAME "Your Company Name"     # Specify the name of the plugin's author
+  COMPANY_NAME "Your_Company_Name"     # Specify the name of the plugin's author
   IS_SYNTH TRUE                        # Is this a synth or an effect?
   NEEDS_MIDI_INPUT TRUE                # Does the plugin need midi input?
   NEEDS_MIDI_OUTPUT TRUE               # Does the plugin need midi output?
@@ -57,10 +57,14 @@ target_sources(RNBOAudioPlugin PRIVATE
   "${RNBO_CPP_DIR}/RNBO.cpp"
   ${RNBO_CLASS_FILE}
   src/Plugin.cpp
-  src/CustomAudioEditor.cpp
-  src/WebBrowserAudioEditor.cpp
   src/CustomAudioProcessor.cpp
   )
+
+if(RNBO_EDITOR_MODE STREQUAL "NATIVE")
+  target_sources(RNBOAudioPlugin PRIVATE src/CustomAudioEditor.cpp)
+elseif(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
+  target_sources(RNBOAudioPlugin PRIVATE src/WebBrowserAudioEditor.cpp)
+endif()
 
 if (EXISTS ${RNBO_BINARY_DATA_FILE})
   target_sources(RNBOAudioPlugin PRIVATE ${RNBO_BINARY_DATA_FILES})
@@ -83,18 +87,12 @@ target_include_directories(RNBOAudioPlugin
 # definitions will be visible both to your code, and also the JUCE module code, so for new
 # definitions, pick unique names that are unlikely to collide! This is a standard CMake command.
 
-set(RNBO_JUCE_PARAM_DEFAULT_NOTIFY 1)
-if (NOT PLUGIN_PARAM_DEFAULT_NOTIFY)
-	set(RNBO_JUCE_PARAM_DEFAULT_NOTIFY 0)
-endif()
-
 target_compile_definitions(RNBOAudioPlugin
   PUBLIC
   JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
   JUCE_VST3_CAN_REPLACE_VST2=0
   RNBO_JUCE_NO_CREATE_PLUGIN_FILTER=1 #don't have RNBO create its own createPluginFilter function, we'll create it ourselves
-  RNBO_JUCE_PARAM_DEFAULT_NOTIFY=${RNBO_JUCE_PARAM_DEFAULT_NOTIFY}
-  )
+  RNBO_JUCE_PARAM_DEFAULT_NOTIFY=$<BOOL:${PLUGIN_PARAM_DEFAULT_NOTIFY}>)
 
 # `target_link_libraries` links libraries and JUCE modules to other libraries or executables. Here,
 # we're linking our executable target to the `juce::juce_audio_utils` module. Inter-module

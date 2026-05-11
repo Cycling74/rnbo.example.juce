@@ -30,7 +30,7 @@ set(PLUGIN_PARAM_DEFAULT_NOTIFY ON CACHE BOOL "Should parameter changes from ins
 #   DEFAULT  — the generic editor provided by RNBO::JuceAudioProcessor
 #   NATIVE   — native JUCE controls (src/CustomAudioEditor)
 #   WEBVIEW  — WebBrowserComponent UI (src/WebBrowserAudioEditor)
-set(RNBO_EDITOR_MODE "NATIVE" CACHE STRING "UI editor: DEFAULT (RNBO built-in), NATIVE (JUCE controls), WEBVIEW (WebBrowserComponent)")
+set(RNBO_EDITOR_MODE "DEFAULT" CACHE STRING "UI editor: DEFAULT (Generic JUCE controls), NATIVE (Custom JUCE controls), WEBVIEW (WebBrowserComponent)")
 set_property(CACHE RNBO_EDITOR_MODE PROPERTY STRINGS DEFAULT NATIVE WEBVIEW)
 
 #write description header file if description.json exists, sets RNBO_INCLUDE_DESCRIPTION_FILE if the file exists
@@ -56,9 +56,8 @@ if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
     juce_add_binary_data(RNBOUIData
         NAMESPACE RNBOUIData
         SOURCES
-        ${CMAKE_CURRENT_LIST_DIR}/src/webui/index.html
-        ${CMAKE_CURRENT_LIST_DIR}/thirdparty/juce/modules/juce_gui_extra/native/javascript/index.js
-        ${CMAKE_CURRENT_LIST_DIR}/thirdparty/juce/modules/juce_gui_extra/native/javascript/check_native_interop.js
+        ${CMAKE_CURRENT_LIST_DIR}/src/webui/dist/index.html
+        ${CMAKE_CURRENT_LIST_DIR}/src/webui/dist/index.js
     )
 endif()
 

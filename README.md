@@ -91,6 +91,8 @@ Now you have a choice of what build system you want to use. Any one of the follo
 
 You might be wondering which on is "best". We say, if you're familiar with Xcode or Visual Studio or Ninja, just go with that. This might be a good time to get a snack, as CMake can take a few minutes to get everything ready, especially when generating the build files for the first time. You may also see a number of warnings in the console, which you can (probably) safely ignore.
 
+| If you want to design your own user interface for your plugin or standalone app, this is where you would use -DRNBO_EDITOR_MODE=NATIVE or -DRNBO_EDITOR_MODE=WEBVIEW to use one of these systems. See [CUSTOM_UI.md](./CUSTOM_UI.md) for more information.
+
 Once CMake has finished generating your build system, you can finally build your project.
 
 ```

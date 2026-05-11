@@ -39,8 +39,6 @@ target_sources(RNBOApp
   PRIVATE
   src/Main.cpp
   src/MainComponent.cpp
-  src/CustomAudioEditor.cpp
-  src/WebBrowserAudioEditor.cpp
   src/CustomAudioProcessor.cpp
 
   ${RNBO_CLASS_FILE}
@@ -50,6 +48,12 @@ target_sources(RNBOApp
   ${RNBO_CPP_DIR}/adapters/juce/RNBO_JuceAudioProcessorEditor.cpp
   ${RNBO_CPP_DIR}/adapters/juce/RNBO_JuceAudioProcessor.cpp
   )
+
+if(RNBO_EDITOR_MODE STREQUAL "NATIVE")
+  target_sources(RNBOApp PRIVATE src/CustomAudioEditor.cpp)
+elseif(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
+  target_sources(RNBOApp PRIVATE src/WebBrowserAudioEditor.cpp)
+endif()
 
 if (EXISTS ${RNBO_BINARY_DATA_FILE})
   target_sources(RNBOApp PRIVATE ${RNBO_BINARY_DATA_FILES})
@@ -69,7 +73,8 @@ target_compile_definitions(RNBOApp
   PRIVATE
   JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_gui_app` call
   JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:RNBOApp,JUCE_PRODUCT_NAME>"
-  JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:RNBOApp,JUCE_VERSION>")
+  JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:RNBOApp,JUCE_VERSION>"
+  RNBO_JUCE_PARAM_DEFAULT_NOTIFY=$<BOOL:${PLUGIN_PARAM_DEFAULT_NOTIFY}>)
 
 # `target_link_libraries` links libraries and JUCE modules to other libraries or executables. Here,
 # we're linking our executable target to the `juce::juce_gui_extra` module. Inter-module
