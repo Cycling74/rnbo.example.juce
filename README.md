@@ -135,6 +135,8 @@ See [CUSTOM_UI.md](./CUSTOM_UI.md) for more details on how to build your own UI.
 
 ### Building with CMake
 
+| If you want to design your own user interface for your plugin or standalone app, this is where you would use -DRNBO_EDITOR_MODE=NATIVE or -DRNBO_EDITOR_MODE=WEBVIEW to use one of these systems. See [CUSTOM_UI.md](./CUSTOM_UI.md) for more information.
+
 Once CMake has finished generating your build system, you can finally build your project.
 
 ```
