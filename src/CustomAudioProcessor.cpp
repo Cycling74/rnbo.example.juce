@@ -38,7 +38,7 @@ CustomAudioProcessor::CustomAudioProcessor(
 {
 }
 
-AudioProcessorEditor* CustomAudioProcessor::createEditor()
+juce::AudioProcessorEditor* CustomAudioProcessor::createEditor()
 {
 #if defined(RNBO_EDITOR_NATIVE)
     return new CustomAudioEditor (this, this->_rnboObject);

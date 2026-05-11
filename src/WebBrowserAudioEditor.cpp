@@ -30,6 +30,11 @@ static const juce::String kDevServerAddress = "http://localhost:3000/";
 
 bool WebBrowserAudioEditor::SinglePageBrowser::pageAboutToLoad (const String& newURL)
 {
+    // Hide the webview on every navigation so emitEventIfBrowserIsVisible won't try to
+    // evaluate JS against a page that hasn't initialised window.__JUCE__ yet.
+    // pageFinishedLoading reveals it again once the page is ready.
+    setVisible (false);
+
     // Allow the dev server and the JUCE resource provider root; block everything else
     // so the single-page UI can't accidentally navigate away.
     return newURL.startsWith (kDevServerAddress)
@@ -48,6 +53,14 @@ bool WebBrowserAudioEditor::SinglePageBrowser::pageLoadHadNetworkError (const St
     }
 
     return true;  // let the browser show its error page
+}
+
+void WebBrowserAudioEditor::SinglePageBrowser::pageFinishedLoading (const String& /*url*/)
+{
+    // Reveal the webview now that window.__JUCE__ is initialised. Keeping it hidden until
+    // this point prevents emitEventIfBrowserIsVisible from evaluating JS on a blank page,
+    // which would throw "undefined is not an object (evaluating 'window.__JUCE__.backend')".
+    setVisible (true);
 }
 
 //==============================================================================
@@ -93,8 +106,11 @@ WebBrowserAudioEditor::WebBrowserAudioEditor (RNBO::JuceAudioProcessor* const p,
                         _kink2Relay, nullptr)
     , _kink3Attachment (static_cast<RangedAudioParameter&> (*p->getParameters()[2]),
                         _kink3Relay, nullptr)
+    , _automateAttachment (static_cast<RangedAudioParameter&> (*p->getParameters()[3]),
+                           _automateRelay, nullptr)
 {
-    addAndMakeVisible (_webComponent);
+    // Start hidden — pageFinishedLoading will reveal the webview once window.__JUCE__ is ready.
+    addChildComponent (_webComponent);
 
     // Try the dev server first. If nothing is listening on that port,
     // pageLoadHadNetworkError fires quickly and redirects to getResourceProviderRoot().

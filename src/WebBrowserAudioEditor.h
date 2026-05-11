@@ -26,6 +26,7 @@ private:
     WebSliderRelay _kink1Relay { "kink1" };
     WebSliderRelay _kink2Relay { "kink2" };
     WebSliderRelay _kink3Relay { "kink3" };
+    WebToggleButtonRelay _automateRelay { "automate" };
 
     // Defined in the .cpp so pageAboutToLoad/pageLoadHadNetworkError can reference
     // the kDevServerAddress constant without it being visible in this header.
@@ -34,6 +35,7 @@ private:
         using WebBrowserComponent::WebBrowserComponent;
         bool pageAboutToLoad (const String& newURL) override;
         bool pageLoadHadNetworkError (const String& errorInfo) override;
+        void pageFinishedLoading (const String& url) override;
     private:
         bool _devServerFailed = false;
     };
@@ -48,6 +50,8 @@ private:
             .withOptionsFrom (_kink1Relay)
             .withOptionsFrom (_kink2Relay)
             .withOptionsFrom (_kink3Relay)
+            .withOptionsFrom (_automateRelay)
+            .withKeepPageLoadedWhenBrowserIsHidden()
             .withResourceProvider ([this] (const auto& url) { return getResource (url); })
     };
 
@@ -56,6 +60,7 @@ private:
     WebSliderParameterAttachment _kink1Attachment;
     WebSliderParameterAttachment _kink2Attachment;
     WebSliderParameterAttachment _kink3Attachment;
+    WebToggleButtonParameterAttachment _automateAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WebBrowserAudioEditor)
 };
