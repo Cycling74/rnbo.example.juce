@@ -1,38 +1,125 @@
 # Making a Custom UI
 
-This document covers two use cases. First, we'll look at the entry points for a custom interface, and see how to swap out the default RNBO interface for one that you write yourself. Next, we'll go through an example of building an interface with the Projucer, and binding UI elements to RNBO code.
+RNBO provides a default interface for audio plugins. This simple interface creates a slider for each parameter in your RNBO patch. Through JUCE, you can create a totally custom interface, complete with a unique look and feel, and following complex logic.
+
+This guide won't really talk about user interface best practices, but it will show you how to set up a project with a custom UI. We'll look the two main approaches that you can use: building a native interface using the JUCE library in C++, or creating a web browser interface that binds to your audio processor.
+
+Each approach has its own advantages. Building a native interface with JUCE can be more efficient, as it doesn't load a separate web browser component. However, using JUCE's WebBrowserComponent lets you work with HTML/CSS/JS to build your interface, which can be much easier. If you run a local web server, you can also modify your interface while your plugin is running using hot reloading.
+
+For most people, we recommend starting with the web-based approach.
 
 Please note, if you haven't yet followed the setup steps in `README.md`, you should do so before you follow this tutorial.
 
-## Switching to a Custom UI
+## Switching UI
 
-The files `src/CustomAudioProcessor` and `src/CustomAudioEditor` are starting points for a custom UI.
-`CustomAudioProcessor` returns `RNBO::JuceAudioProcessorEditor` by default, so the first step to making your own UI is to modify the code to return `CustomAudioProcessor` instead.
+Take a look at `CMakeLists.txt`. This is the main build configuration file for this project. It defines what files should be compiled together to produce a VST/AU plugin, as well as a standalone application.
 
-Open up `CustomAudioProcessor.cpp` and modify the section at the bottom so you are using the `CustomAudioEditor`.
+If you look through that file, you will see a line like this:
 
-```cpp
-AudioProcessorEditor* CustomAudioProcessor::createEditor()
-{
-    //Change this to use your CustomAudioEditor
-    return new CustomAudioEditor (this, this->_rnboObject);
-    //return RNBO::JuceAudioProcessor::createEditor();
-}
+```
+set(RNBO_EDITOR_MODE "DEFAULT" CACHE STRING "UI editor: DEFAULT (Generic JUCE controls), NATIVE (Custom JUCE controls), WEBVIEW (WebBrowserComponent)")
 ```
 
-## Building a Custom UI with the Projucer
+This defines a configuration variable called `RNBO_EDITOR_MODE`, which can be set to `DEFAULT`, `NATIVE`, or `WEBVIEW`. 
 
-### A Word on the Projucer
+| Value | Interface |
+| - | - |
+| DEFAULT | Creates a generic audio parameter editor by calling `RNBO::JuceAudioProcessor::createEditor()`. No customization is possible. |
+| NATIVE | Uses the JUCE library to create a native interface in C++ |
+| WEBVIEW | Uses WebBrowserComponent to create a web-based interface using browser technology |
 
-JUCE uses the Projucer to set up JUCE projects. It doesn't build your plugin directly, but rather it builds an Xcode or Visual Studio project that you can then use to build your plugin. We're using CMake instead of the Projucer in this project, as the CMake-based system that we're using is more flexible and easier to maintain. However, that doesn't mean that we can't use the UI editor inside of the Projucer if we want to. Basically, we can use the Projucer to design our user interface, but we don't use the Projucer to build our build system. We use a mixed approach, with CMake for building and the Projucer for editing the UI.
+In order to set this configuration variable, use `-DRNBO_EDITOR_MODE` during CMake configuration. For example:
 
-### Getting Started
+```
+cmake .. -DRNBO_EDITOR_MODE=WEBVIEW -G Ninja
+```
+
+This command will configure Ninja-based build, using a WebBrowserComponent to support a custom UI.
+
+## Exporting the example patcher
 
 For this example, we're going to create a custom user interface for a simple drone patcher, which you can export into `/export` as per the instructions over in `README.md`. These instructions in this document should work for both a plugin as well as a desktop app. 
 
 The `three-param-kink.maxpat` patcher will produce a drone with adjustable timbre. You can find it in `patches`, and it looks like this:
 
 ![](./img/droner.png)
+
+Before you continue, make sure that you've exported this patcher into the _export/_ directory. 
+
+> You'll notice that the example patcher will have the name `three-param-kink.cpp`. When you configure CMake, be sure to set `RNBO_CLASS_FILE_NAME` to `three-param-kink.cpp`, so that the build script can find the exported RNBO file.
+
+## Creating a Web-based UI
+
+The easiest and fastest way to build a custom UI is by using WebBrowserComponent, which will let you design and style your UI using HTML/CSS/JavaScript. To start, open your terminal and configure CMake to use the web-based editor.
+
+```
+cd build
+cmake .. -DRNBO_CLASS_FILE_NAME three-param-kink.cpp -DRNBO_EDITOR_MODE=WEBVIEW
+```
+
+If you look in `src/CustomAudioProcessor.cpp`, you'll see code like this:
+
+```cpp
+AudioProcessorEditor* CustomAudioProcessor::createEditor()
+{
+#if defined(RNBO_EDITOR_NATIVE)
+    return new CustomAudioEditor (this, this->_rnboObject);
+#elif defined(RNBO_EDITOR_WEBVIEW)
+    return new WebBrowserAudioEditor (this, this->_rnboObject);
+#else
+    return RNBO::JuceAudioProcessor::createEditor();
+#endif
+}
+```
+
+As you can see, when the `RNBO_EDITOR_MODE` is set to `WEBVIEW`, the plugin will load `WebBrowserAudioEditor`. 
+
+### Customizing the web UI with hot reloading
+
+This example comes with a very simple web UI already in place. One thing that's really useful about using a WebBrowserComponent to serve our UI is that we can update our UI while the application is still running.
+
+The `WebBrowserAudioEditor` class is responsble for providing resources to the WebBrowserComponent, like HTML files, images, and JavaScript files. At the top of "WebBrowserAudioEditor.cpp", you'll see code like this:
+
+```cpp
+#if JUCE_ANDROID
+static const juce::String kDevServerAddress = "http://10.0.2.2:3000/";
+#else
+static const juce::String kDevServerAddress = "http://localhost:3000/";
+#endif
+```
+
+That means that if we run a development server on port 3000, then the web interface will load files from that server. Open your terminal and navigate to `src/webui/`.
+
+```
+cd src/webui
+```
+
+Now, run a local web server. If you have `npx` installed, you can use `live-server`, which supports hot reloading.
+
+```
+npx live-server --port=3000
+```
+
+When you run the server, your default web browser should open automatically, and you should see something like this:
+
+![](./img/001-kink-synth-ui.png)
+
+Close the web browser. From your terminal, build the app and plugin.
+
+```
+cd build
+cmake --build .
+```
+
+This should build a JUCE standalone app to `build/RNBOApp_artefacts/Release/RNBO App Example.app` (or to `build/RNBOApp_artefacts/Debug/RNBO App Example.app` if you're using a debug configuration). After the build script finishes running, open the app.
+
+### Binding the interface to the engine
+
+The `WebBrowserAudioEditor` class takes care of loading a 
+
+### Adding a control
+
+## Creating a Native UI
 
 Let's make a simple interface for this patcher with three JUCE sliders. First, download the Projucer if you haven’t already. The Projucer is part of JUCE, but the JUCE Github repository does not contain a Projucer executable. To get the Projucer, instead download a JUCE installer for your platform from the JUCE website.
 
