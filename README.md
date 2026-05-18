@@ -135,7 +135,41 @@ See [CUSTOM_UI.md](./CUSTOM_UI.md) for more details on how to build your own UI.
 
 ### Building with CMake
 
-| If you want to design your own user interface for your plugin or standalone app, this is where you would use -DRNBO_EDITOR_MODE=NATIVE or -DRNBO_EDITOR_MODE=WEBVIEW to use one of these systems. See [CUSTOM_UI.md](./CUSTOM_UI.md) for more information.
+#### Choosing debug or release
+
+You can configure CMake to build either a Debug or a Release target. The Debug target is larger and less optimized, but includes symbols that map from the compiled code back to your source file. This lets you set breakpoints in your code, which is helpful for debugging. Use the flag `CMAKE_BUILD_TYPE` flag to choose Debug or Release.
+
+```sh
+cmake -DCMAKE_BUILD_TYPE=Release ..
+```
+
+#### Renaming your export source
+
+By default, the build script looks for a RNBO export in the `export` folder named `rnbo_source.cpp`. If you export your RNBO patch with a different name, pass that as a configuration argument when you run CMake. For example, to use the Ninja build system and a RNBO export named `slime_sound.cpp`, you could use the following command.
+
+```sh
+cmake -DRNBO_CLASS_FILE_NAME=slime_sound.cpp -G Ninja ..
+```
+
+#### Choosing a UI system
+
+RNBO provides a default interface for audio plugins, which simply creates a slider for each parameter in your RNBO patch. If you want to create a custom interface, you can configure CMake to use a different interface system.
+
+This template is set up with a starting point for two different custom UI systems. The first uses JUCE to build a native C++ UI.
+
+```sh
+cmake -DRNBO_EDITOR_MODE=NATIVE ..
+```
+
+The second uses a WebBrowserComponent to build a UI using HTML/CSS/JS. 
+
+```sh
+cmake -DRNBO_EDITOR_MODE=WEBVIEW ..
+```
+
+See [CUSTOM_UI.md](./CUSTOM_UI.md) for more details on how to build your own UI.
+
+### Building with CMake
 
 Once CMake has finished generating your build system, you can finally build your project.
 
