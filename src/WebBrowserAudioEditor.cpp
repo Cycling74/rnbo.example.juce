@@ -90,6 +90,18 @@ namespace
     }
 }
 
+static juce::RangedAudioParameter&
+findParameter(RNBO::JuceAudioProcessor* p, const juce::String& name)
+{
+    for (auto* param : p->getParameters())
+    {
+        if (param->getName(128) == name)
+            return static_cast<juce::RangedAudioParameter&>(*param);
+    }
+
+    throw std::runtime_error("Parameter not found: " + name.toStdString());
+}
+
 //==============================================================================
 // Members are initialized in declaration order (see WebBrowserAudioEditor.h).
 // Relays and _webComponent use default member initializers; the
@@ -100,14 +112,10 @@ WebBrowserAudioEditor::WebBrowserAudioEditor (RNBO::JuceAudioProcessor* const p,
     : AudioProcessorEditor (p)
     , _audioProcessor (p)
     , _rnboObject (rnboObject)
-    , _kink1Attachment (static_cast<RangedAudioParameter&> (*p->getParameters()[0]),
-                        _kink1Relay, nullptr)
-    , _kink2Attachment (static_cast<RangedAudioParameter&> (*p->getParameters()[1]),
-                        _kink2Relay, nullptr)
-    , _kink3Attachment (static_cast<RangedAudioParameter&> (*p->getParameters()[2]),
-                        _kink3Relay, nullptr)
-    , _automateAttachment (static_cast<RangedAudioParameter&> (*p->getParameters()[3]),
-                           _automateRelay, nullptr)
+    , _kink1Attachment(findParameter(p, "kink1"), _kink1Relay, nullptr)
+    , _kink2Attachment(findParameter(p, "kink2"), _kink2Relay, nullptr)
+    , _kink3Attachment(findParameter(p, "kink3"), _kink3Relay, nullptr)
+    , _automateAttachment(findParameter(p, "automate"), _automateRelay, nullptr)
 {
     // Start hidden — pageFinishedLoading will reveal the webview once window.__JUCE__ is ready.
     addChildComponent (_webComponent);

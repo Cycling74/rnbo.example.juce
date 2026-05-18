@@ -1,8 +1,8 @@
 # RNBO JUCE Examples
 
-So you want to build your own DAW or a Plugin? This template should get you started with your own Standalone Desktop application and Audio Plugin, using the source code export feature of RNBO, part of [Max 8](https://cycling74.com/max8/) made by [Cycling '74](https://cycling74.com/). 
+This template demonstrates how to use RNBO in either a Standalone Desktop application or an Audio Plugin (VST/AU). It uses the C++ source code export feature of RNBO, together with the JUCE application framework. RNBO is part of [Max 8](https://cycling74.com/max8/) made by [Cycling '74](https://cycling74.com/). 
 
-This project is based on the cross-platform JUCE framework for handling audio processing. You have the option of using JUCE to manage your UI as well. Please be aware that the JUCE has its own license terms (mostly GPL with the availability of commercial licenses). See their [website](http://www.juce.com/) for further details.
+If you want to build an app or plugin for sale, be aware that the JUCE has its own license terms (mostly GPL with the availability of commercial licenses). See their [website](http://www.juce.com/) for further details.
 
 > **Alert (macOS users):** If you are using macOS 15+, you may have trouble building the `main` branch due to an incompatibility with the JUCE version it uses. Please use the [`juce8` branch](https://github.com/Cycling74/rnbo.example.juce/tree/juce8) instead.
 
@@ -51,7 +51,7 @@ git submodule update --init --recursive --progress
 
 If the above command doesn't work, check your version if git by runing `git --version`. The `--progress` flag wasn't introduced until git `2.11.0`, so if your version is earlier than this you won't have access to it. Strictly speaking you don't need that last `--progress` flag, but it's nice to have some progress indication, especially since installing the JUCE submodule can take a while. That's all you'll need to do to get set up! Now you can start exporting from RNBO and building your project.
 
-### Working with RNBO and Building Your Project
+### Exporting RNBO
 
 Next, open the RNBO patcher you'd like to work with, and navigate to the export sidebar. Find "C++ Source Code Export" target.
 
@@ -66,32 +66,74 @@ export/
 ├─ README.md
 ```
 
-**Note:** By default, this project expects the exported source file to be named `rnbo_source.cpp`.
+**Note:** By default, this project expects the exported source file to be named `rnbo_source.cpp`. If you want to use a different name, see [Renaming your export source](#renaming-your-export-source).
 
-- To use this default name, set the **"Export Name"** field in RNBO's export sidebar to `rnbo_source.cpp`.
-- To use a different filename, update the value in `CMakeLists.txt` (line 17) to match your file:
+Whenever you make a change to your RNBO patch, remember to export the patch to C++ again, so that your changes will be incorporated when you rebuild. Now that you've exported your RNBO code, it's time to build. 
 
-```cmake
-set(RNBO_CLASS_FILE_NAME "my_great_synth.cpp" CACHE STRING "the name of your RNBO class file")
-```
-If you've made such a change and have already built the project, delete the `build` folder before rebuilding to ensure the change takes effect.
+## Using CMake
 
-Whenever you make a change to your RNBO patch, remember to export the source code again to update this file. Now that you've exported your RNBO code, it's time to build. This project uses CMake, which gives us the flexibility of using whatever build system we want. Start by moving to the build directory.
+CMake is a build system generator. You run CMake to configure a system to build your project, and then run the build script to actually create your program. A typical CMake flow looks something like this:
+
+1. Create the folder (usually `build`) where you actually want to build your project. `cd` into that folder.
+2. Run `cmake ..` to configure your build system.
+3. Run `cmake --build .` to actually build.
+
+To build this template, start by moving to the build directory (this repository should already have an empty `build` directory).
 
 ```sh
 cd build
 ```
 
-Now you have a choice of what build system you want to use. Any one of the following will work:
+### Configuring CMake
+
+Now that we're in the `build` directory, the next step is to configure CMake. At this stage, you choose what build system you want to use, and pass any configuration flags to set up your project to build in a particular way.
+
+#### Choosing a build system
+
+You have a choice of what build system you want to use. Any one of the following will work:
 
 - `cmake .. -G Xcode` (create an Xcode project)
 - `cmake .. -G "Visual Studio 16"` (create a Visual Studio 2019 project)
 - `cmake .. -G Ninja` (use Ninja to build)
 - `cmake ..` (just use the default, which will be `make` on MacOS, Linux and other Unix-like platforms)
 
-You might be wondering which on is "best". We say, if you're familiar with Xcode or Visual Studio or Ninja, just go with that. This might be a good time to get a snack, as CMake can take a few minutes to get everything ready, especially when generating the build files for the first time. You may also see a number of warnings in the console, which you can (probably) safely ignore.
+You might be wondering which on is "best". We say, if you're familiar with Xcode or Visual Studio or Ninja, just go with that.
 
-| If you want to design your own user interface for your plugin or standalone app, this is where you would use -DRNBO_EDITOR_MODE=NATIVE or -DRNBO_EDITOR_MODE=WEBVIEW to use one of these systems. See [CUSTOM_UI.md](./CUSTOM_UI.md) for more information.
+#### Choosing debug or release
+
+You can configure CMake to build either a Debug or a Release target. The Debug target is larger and less optimized, but includes symbols that map from the compiled code back to your source file. This lets you set breakpoints in your code, which is helpful for debugging. Use the flag `CMAKE_BUILD_TYPE` flag to choose Debug or Release.
+
+```sh
+cmake -DCMAKE_BUILD_TYPE=Release ..
+```
+
+#### Renaming your export source
+
+By default, the build script looks for a RNBO export in the `export` folder named `rnbo_source.cpp`. If you export your RNBO patch with a different name, pass that as a configuration argument when you run CMake. For example, to use the Ninja build system and a RNBO export named `slime_sound.cpp`, you could use the following command.
+
+```sh
+cmake -DRNBO_CLASS_FILE_NAME=slime_sound.cpp -G Ninja ..
+```
+
+#### Choosing a UI system
+
+RNBO provides a default interface for audio plugins, which simply creates a slider for each parameter in your RNBO patch. If you want to create a custom interface, you can configure CMake to use a different interface system.
+
+This template is set up with a starting point for two different custom UI systems. The first uses JUCE to build a native C++ UI.
+
+```sh
+cmake -DRNBO_EDITOR_MODE=NATIVE ..
+```
+
+The second uses a WebBrowserComponent to build a UI using HTML/CSS/JS. 
+
+```sh
+cmake -DRNBO_EDITOR_MODE=WEBVIEW ..
+```
+
+See [CUSTOM_UI.md](./CUSTOM_UI.md) for more details on how to build your own UI.
+
+### Building with CMake
 
 Once CMake has finished generating your build system, you can finally build your project.
 

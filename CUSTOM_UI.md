@@ -1,14 +1,16 @@
 # Making a Custom UI
 
-RNBO provides a default interface for audio plugins. This simple interface creates a slider for each parameter in your RNBO patch. Through JUCE, you can create a totally custom interface, complete with a unique look and feel, and following complex logic.
+This guide shows how to build a custom UI for your plugin or standalone app. It does not cover UX best practices or graphic design, but it will show you how to set up a project that creates bidirectional bindings between UI elements and RNBO parameters.
 
-This guide won't really talk about user interface best practices, but it will show you how to set up a project with a custom UI. We'll look the two main approaches that you can use: building a native interface using the JUCE library in C++, or creating a web browser interface that binds to your audio processor.
+We'll look the two main approaches that you can use: building a native interface using the JUCE library in C++, or creating a web browser interface that binds to your audio processor.
 
 Each approach has its own advantages. Building a native interface with JUCE can be more efficient, as it doesn't load a separate web browser component. However, using JUCE's WebBrowserComponent lets you work with HTML/CSS/JS to build your interface, which can be much easier. If you run a local web server, you can also modify your interface while your plugin is running using hot reloading.
 
 For most people, we recommend starting with the web-based approach.
 
-Please note, if you haven't yet followed the setup steps in `README.md`, you should do so before you follow this tutorial.
+## Prerequisites
+
+If you haven't yet followed the setup steps in [README.md](./README.md), you should do so before you follow this tutorial. If you want to follow the guide for building a web-based interface, you will also need to install [Node.js](https://nodejs.org/).
 
 ## Switching UI
 
@@ -16,7 +18,7 @@ Take a look at `CMakeLists.txt`. This is the main build configuration file for t
 
 If you look through that file, you will see a line like this:
 
-```
+```cmake
 set(RNBO_EDITOR_MODE "DEFAULT" CACHE STRING "UI editor: DEFAULT (Generic JUCE controls), NATIVE (Custom JUCE controls), WEBVIEW (WebBrowserComponent)")
 ```
 
@@ -30,7 +32,7 @@ This defines a configuration variable called `RNBO_EDITOR_MODE`, which can be se
 
 In order to set this configuration variable, use `-DRNBO_EDITOR_MODE` during CMake configuration. For example:
 
-```
+```sh
 cmake .. -DRNBO_EDITOR_MODE=WEBVIEW -G Ninja
 ```
 
@@ -90,19 +92,37 @@ static const juce::String kDevServerAddress = "http://localhost:3000/";
 
 That means that if we run a development server on port 3000, then the web interface will load files from that server. Open your terminal and navigate to `src/webui/`.
 
-```
+```sh
 cd src/webui
 ```
 
-Now, run a local web server. If you have `npx` installed, you can use `live-server`, which supports hot reloading.
+The example UI uses a popular application framework for JavaScript called `vite`. To install all the necessary dependencies, first run `npm install`. You should only need to do this once.
 
-```
-npx live-server --port=3000
+```sh
+npm install
 ```
 
-When you run the server, your default web browser should open automatically, and you should see something like this:
+This should create a folder `node_modules` in `src/webui`, containing all the JavaScript dependencies for the web UI. Now, from the `src/webui` directory, run `npm run dev`.
+
+```sh
+npm run dev
+```
+
+You should see something in the terminal like the following:
+
+```sh
+  VITE v5.4.21  ready in 169 ms
+
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+```
+
+If you open up a web server and go to the web address `http://localhost:3000/`, you should see something like this:
 
 ![](./img/001-kink-synth-ui.png)
+
+This is the interface to your app/plugin, as it will appear in your final build. Because the `vite` server supports hot reloading, you can make changes to this web page and see them appear instantly in your JUCE build.
 
 Close the web browser. From your terminal, build the app and plugin.
 
@@ -111,295 +131,277 @@ cd build
 cmake --build .
 ```
 
-This should build a JUCE standalone app to `build/RNBOApp_artefacts/Release/RNBO App Example.app` (or to `build/RNBOApp_artefacts/Debug/RNBO App Example.app` if you're using a debug configuration). After the build script finishes running, open the app.
+This should build a JUCE standalone app to `build/RNBOApp_artefacts/Release/RNBO App Example.app` (or to `build/RNBOApp_artefacts/Debug/RNBO App Example.app` if you're using a debug configuration). After the build script finishes running, open the app. When you open the standalone app, you'll see something like this:
+
+![](./img/kink-synth-app.png)
+
+Now, go into the HTML file at `src/webui/index.html` and make some changes. You can change whatever you want, for example adding some inline style or changing the text. 
+
+```html
+    <body>
+        {# <h1>Kink Drones</h1> #}
+        <h1>My new cool title</h1>
+        <div id="app">
+```
+
+![](./img/kink-synth-app-new-title.png)
 
 ### Binding the interface to the engine
 
-The `WebBrowserAudioEditor` class takes care of loading a 
+Let's take a closer look at the definition of `WebBrowserAudioEditor` to see how this class binds the sliders in the app to the parameters of the RNBO export. In `src/WebBrowserAudioEditor.h`, you'll see where the editor creates some controller objects called _relays_.
 
-### Adding a control
+```cpp
+    WebSliderRelay _kink1Relay { "kink1" };
+    WebSliderRelay _kink2Relay { "kink2" };
+    WebSliderRelay _kink3Relay { "kink3" };
+    WebToggleButtonRelay _automateRelay { "automate" };
+```
+
+These classes are new to JUCE 8. When we construct the `WebBrowserComponent` subclass (`SinglePageBrowser`), we pass these relays as options to the constructor. This creates event handlers on the JavaScript end.
+
+| The identifier string that you pass to the relay constructor will be how the named parameter appears on the JavaScript end.
+
+
+
+```cpp
+    SinglePageBrowser _webComponent {
+        WebBrowserComponent::Options{}
+            .withBackend (WebBrowserComponent::Options::Backend::webview2)
+            .withWinWebView2Options (WebBrowserComponent::Options::WinWebView2{}
+                .withUserDataFolder (File::getSpecialLocation (
+                    File::SpecialLocationType::tempDirectory)))
+            .withNativeIntegrationEnabled()
+            .withOptionsFrom (_kink1Relay)
+            .withOptionsFrom (_kink2Relay)
+            .withOptionsFrom (_kink3Relay)
+            .withOptionsFrom (_automateRelay)
+            .withKeepPageLoadedWhenBrowserIsHidden()
+            .withResourceProvider ([this] (const auto& url) { return getResource (url); })
+    };
+```
+
+This provides the webpage with the name of the available relays, so that the sliders in the web page can connect to them. In the definiton of `SinglePageBrowser`, we also declare some attachments.
+
+```
+    WebSliderParameterAttachment _kink1Attachment;
+    WebSliderParameterAttachment _kink2Attachment;
+    WebSliderParameterAttachment _kink3Attachment;
+    WebToggleButtonParameterAttachment _automateAttachment;
+```
+
+These attachments create a bidirectional attachment between the relay and the Audio Parameters themselves. In the `SinglePageBrowser` constructor, we initialize these with both the relays as well as the parameters.
+
+```cpp
+static juce::RangedAudioParameter&
+findParameter(RNBO::JuceAudioProcessor* p, const juce::String& name)
+{
+    for (auto* param : p->getParameters())
+    {
+        if (param->getName(128) == name)
+            return static_cast<juce::RangedAudioParameter&>(*param);
+    }
+
+    throw std::runtime_error("Parameter not found: " + name.toStdString());
+}
+
+//==============================================================================
+// Members are initialized in declaration order (see WebBrowserAudioEditor.h).
+// Relays and _webComponent use default member initializers; the
+// WebSliderParameterAttachment members need the processor's parameters so they
+// are initialized here.
+WebBrowserAudioEditor::WebBrowserAudioEditor (RNBO::JuceAudioProcessor* const p,
+                                              RNBO::CoreObject& rnboObject)
+    : AudioProcessorEditor (p)
+    , _audioProcessor (p)
+    , _rnboObject (rnboObject)
+    , _kink1Attachment(findParameter(p, "kink1"), _kink1Relay, nullptr)
+    , _kink2Attachment(findParameter(p, "kink2"), _kink2Relay, nullptr)
+    , _kink3Attachment(findParameter(p, "kink3"), _kink3Relay, nullptr)
+    , _automateAttachment(findParameter(p, "automate"), _automateRelay, nullptr)
+{
+    // Start hidden — pageFinishedLoading will reveal the webview once window.__JUCE__ is ready.
+    addChildComponent (_webComponent);
+
+    // Try the dev server first. If nothing is listening on that port,
+    // pageLoadHadNetworkError fires quickly and redirects to getResourceProviderRoot().
+    _webComponent.goToURL (kDevServerAddress);
+
+    setSize (400, 320);
+}
+```
+
+This is everything that we need to do on the C++ side. Creating and positioning the UI elements is all handled in JavaScript.
+
+### Creating the web interface
+
+JUCE provide a JavaScript framework to expose the parameters to the web interface. At the top of `src/webui/main.js`, you'll see an import for some of these functions.
+
+```js
+import { getSliderState, getToggleState } from 'juce-framework-frontend';
+```
+
+These functions return a `state` object that provides a getter and setter for the parameter state. The `bindToggleParam` function demonstrates how to use these:
+
+```js
+function bindToggleParam(name, toggleId) {
+    const toggle = document.getElementById(toggleId);
+    const state  = getToggleState(name);
+
+    state.valueChangedEvent.addListener(() => {
+        toggle.checked = state.getValue();
+    });
+
+    toggle.addEventListener('change', () => {
+        state.setValue(toggle.checked);
+    });
+}
+
+bindToggleParam('automate', 'toggle-automate');
+```
+
+As you can see, this function calls `document.getElementById` to get an HTML element with a given ID. For this function to return successfully, there must be a corresponding element in the HTML. Looking at `src/webui/index.html`, we can find the toggle in question:
+
+```html
+<div style="display: flex; align-items: center; gap: 10px;">
+<input type="checkbox" id="toggle-automate"><label for="toggle-automate">Automate</label>
+<input type="range" id="slider-kink3" min="0" max="1" step="0.001" value="0">
+</div>
+```
+
+### Building the web application
+
+We've already seen how to use the dev server to change the webpage dynamically while the app is running. However, for the release version of the plugin, you will load the web page from the application binary itself. In `CMakeLists.txt`, you'll see where the web page is loaded into the binary:
+
+```cmake
+# Compile web UI files into the binary — only needed for the WEBVIEW editor.
+if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
+    juce_add_binary_data(RNBOUIData
+        NAMESPACE RNBOUIData
+        SOURCES
+        ${CMAKE_CURRENT_LIST_DIR}/src/webui/dist/index.html
+        ${CMAKE_CURRENT_LIST_DIR}/src/webui/dist/index.js
+    )
+endif()
+```
+
+These files `src/webui/dist/index.html` and `src/webui/dist/index.js` are the bundled version of the Vite application. To generate these, change to the `src/webui` directory and run `npm run build`.
+
+```sh
+cd src/webui
+npm run build
+```
+
+Now when you build your application or plugin, the compiled and bundled version of the Vite application will be included in the program binary. 
 
 ## Creating a Native UI
 
-Let's make a simple interface for this patcher with three JUCE sliders. First, download the Projucer if you haven’t already. The Projucer is part of JUCE, but the JUCE Github repository does not contain a Projucer executable. To get the Projucer, instead download a JUCE installer for your platform from the JUCE website.
+If you don't want your plugin to use a web component, you can use JUCE's UI classes to build a native C++ interface. The file `src/CustomAudioEditor.h` defines the `CustomAudioEditor` class, which implements a simple native interface for the RNBO patcher `patches/three-param-kink.maxpat`.
 
-Create a new project, selecting the Basic plug-in project template. Use the defaults for modules and exporters (we won't be using these anyway). Now we need to decide where to save the `.jucer` file. We're not really going to be using this file too much, so it might be nice to keep it isolated from the rest of our code. I'm going to make a new folder in the root of the repository called `ui`, and I'll save the JUCE project there. After creating the project, your directory structure should look something like this:
+### Configuring CMake
 
-![](./img/directory_structure.png)
-
-The Projucer will automatically create four files for the PluginProcessor and PluginEditor. We won't be using these, so you can just delete them.
-
-By default the GUI editor is not enabled. You may need to enable it from the Tools menu.
-
-![](./img/tools_menu.png)
-
-From the "GUI Editor" menu, select "Add new GUI Component" to add a `.cpp` and `.h` file for your new component. I named mine `RootComponent` because it's hard to come up with a good, original name. You can call yours whatever you want. Now let's add three sliders to our component. Navigate to "Subcomponents" and right-click to add these sliders. Let's also be careful to change the name of each component. Our three parameters are called `kink1`, `kink2`, and `kink3`, so give the sliders each one of these names. Later on, we'll use this name to map each slider to the RNBO parameter with the same name.
-
-When you are done, "Save All."
-
-![](./img/named_slider.png)
-
-Now we have two main tasks ahead of us.
-
-1. Replace the default RNBO plugin UI with our custom interface.
-2. Connect our sliders to the RNBO parameters.
-
-### Adding the Interface to CMake
-
-First, we need to make sure that the RootComponent.cpp and RootComponent.h files get added to our project. First, add these files to `Plugin.cmake` in the repository root.
-
-```cmake
-target_sources(RNBOAudioPlugin PRIVATE
-  "${RNBO_CPP_DIR}/adapters/juce/RNBO_JuceAudioProcessor.cpp"
-  "${RNBO_CPP_DIR}/adapters/juce/RNBO_JuceAudioProcessorEditor.cpp"
-  "${RNBO_CPP_DIR}/RNBO.cpp"
-  ${RNBO_CLASS_FILE}
-  src/Plugin.cpp
-  src/CustomAudioEditor.cpp
-  src/CustomAudioProcessor.cpp
-  ui/NewProject/Source/RootComponent.cpp
-  )
-
-include_directories(
-  "${RNBO_CPP_DIR}/"
-  "${RNBO_CPP_DIR}/common/"
-  "${RNBO_CPP_DIR}/adapters/juce/"
-  "${RNBO_CPP_DIR}/src/3rdparty/"
-  "src"
-  "ui/NewProject/Source"
-  )
-```
-
-Next, find `App.cmake` and add these files there as well.
-
-```cmake
-target_sources(RNBOApp
-  PRIVATE
-  src/Main.cpp
-  src/MainComponent.cpp
-  src/CustomAudioEditor.cpp
-  src/CustomAudioProcessor.cpp
-  ui/NewProject/Source/RootComponent.cpp
-
-  ${RNBO_CLASS_FILE}
-
-  ${RNBO_CPP_DIR}/RNBO.cpp
-  ${RNBO_CPP_DIR}/adapters/juce/RNBO_JuceAudioProcessorUtils.cpp
-  ${RNBO_CPP_DIR}/adapters/juce/RNBO_JuceAudioProcessorEditor.cpp
-  ${RNBO_CPP_DIR}/adapters/juce/RNBO_JuceAudioProcessor.cpp
-  )
-
-include_directories(
-  "src"
-  "${RNBO_CPP_DIR}/"
-  "${RNBO_CPP_DIR}/src"
-  "${RNBO_CPP_DIR}/common/"
-  "${RNBO_CPP_DIR}/adapters/juce/"
-  "${RNBO_CPP_DIR}/src/3rdparty/"
-  "ui/NewProject/Source"
-  )
-```
-
-Now use CMake in the usual way to generate and build. Remember to set the correct name for `RNBO_CLASS_FILE` on line 17 of `CMakeLists.txt`, for example, `three-param-kink.cpp`. Once you've done so, you can enter something like this into your terminal:
+To configure the template to use a native JUCE interface, set `RNBO_EDITOR_MODE` to `NATIVE` when configuring CMake:
 
 ```sh
-cd build
-cmake -G Ninja ..
-cmake --build .
+cmake .. -DRNBO_EDITOR_MODE=NATIVE -G Ninja
 ```
 
-The plugin should build without errors, but of course we don't see our new `RootComponent` with its sliders yet. We need to add the `RootComponent` to our custom UI.
-
-### Adding the Custom Root Component
-Open up `src/CustomAudioEditor.h`. First, add `RootComponent.h` to the include definitions.
+If you look at `src/CustomAudioProcessor.cpp`, you can see where the definition will tell the processor to load `CustomAudioEditor`:
 
 ```cpp
-#include "JuceHeader.h"
-#include "RNBO.h"
-#include "RNBO_JuceAudioProcessor.h"
-#include "RootComponent.h"
+juce::AudioProcessorEditor* CustomAudioProcessor::createEditor()
+{
+#if defined(RNBO_EDITOR_NATIVE)
+    return new CustomAudioEditor (this, this->_rnboObject);
+#elif defined(RNBO_EDITOR_WEBVIEW)
+    return new WebBrowserAudioEditor (this, this->_rnboObject);
+#else
+    return RNBO::JuceAudioProcessor::createEditor();
+#endif
+}
 ```
 
-Next, find the declaration for the default `_label` member variable and replace it with one for a `RootComponent` component.
+If you build the project now, and open the application in `build/RNBOApp_artefacts`, you should see something like this:
+
+![](./img/native-ui.png)
+
+### Creating the interface
+
+In `CustomAudioEditor.h`, you can see where the class creates the sliders, and the labels for the slider:
 
 ```cpp
-// Label                _label;
-RootComponent           _rootComponent;
+Slider _kink1Slider, _kink2Slider, _kink3Slider;
+Label  _kink1Label,  _kink2Label,  _kink3Label;
 ```
 
-Finally, open up `src/CustomAudioEditor.cpp`. Find the constructor, where the default label is configured and sized. Replace that code with new code to size and configure the `RootComponent`.
+You will also see the attachments for each of these sliders:
 
 ```cpp
-CustomAudioEditor::CustomAudioEditor (RNBO::JuceAudioProcessor* const p, RNBO::CoreObject& rnboObject)
+SliderParameterAttachment _kink1Attachment;
+SliderParameterAttachment _kink2Attachment;
+SliderParameterAttachment _kink3Attachment;
+```
+
+Unlike the web-based interface, there's no need for a relay here. In `src/CustomAudioEditor.cpp`, you can see how the attachments are bound to RNBO audio parameters.
+
+```cpp
+static juce::RangedAudioParameter&
+findParameter(RNBO::JuceAudioProcessor* p, const juce::String& name)
+{
+    for (auto* param : p->getParameters())
+    {
+        if (param->getName(128) == name)
+            return static_cast<juce::RangedAudioParameter&>(*param);
+    }
+
+    throw std::runtime_error("Parameter not found: " + name.toStdString());
+}
+
+CustomAudioEditor::CustomAudioEditor (RNBO::JuceAudioProcessor* const p,
+                                      RNBO::CoreObject& rnboObject)
     : AudioProcessorEditor (p)
-    , _rnboObject(rnboObject)
-    , _audioProcessor(p)
+    , _audioProcessor (p)
+    , _rnboObject (rnboObject)
+    , _kink1Attachment(findParameter(p, "kink1"), _kink1Slider)
+    , _kink2Attachment(findParameter(p, "kink2"), _kink2Slider)
+    , _kink3Attachment(findParameter(p, "kink3"), _kink3Slider)
+```
+
+Remarkably, this is really all we need to do in order to synchronize the state of the slider and the state of the corresponding audio parameter. If you're curious, you can also see how JUCE handles layout for the various controls:
+
+```cpp
+void CustomAudioEditor::resized()
 {
-    _audioProcessor->AudioProcessor::addListener(this);
+    auto area = getLocalBounds().reduced (16);
+    const int rowHeight = area.getHeight() / 3;
 
-    // _label.setText("Hi I'm Custom Interface", NotificationType::dontSendNotification);
-    // _label.setBounds(0, 0, 400, 300);
-    // _label.setColour(Label::textColourId, Colours::black);
-    // addAndMakeVisible(_label);
-    // setSize (_label.getWidth(), _label.getHeight());
-
-    addAndMakeVisible(_rootComponent);
-    setSize(_rootComponent.getWidth(), _rootComponent.getHeight());
-}
-```
-
-Rebuild using CMake, and you should see the generated UI loading in place of the default custom UI.
-
-```sh
-cd build
-cmake ..
-cmake --build .
-```
-
-### Connecting the Sliders
-
-To make the sliders functional, we modify `RootComponent.h` and `RootComponent.cpp`. When the sliders change, we want to update the parameters of the `AudioProcessor`. When we get a parameter change notification from the `AudioProcessor`, we want to update the sliders.
-
-Open up `RootComponent.h`. At the top of the file, include these RNBO header files.
-
-```cpp
-//[Headers]     -- You can add your own extra header files here --
-#include <JuceHeader.h>
-#include "RNBO.h"
-#include "RNBO_JuceAudioProcessor.h"
-//[/Headers]
-```
-
-Now add the following between the `[UserMethods]` tags:
-
-```cpp
-//[UserMethods]     -- You can add your own custom methods in this section.
-void setAudioProcessor(RNBO::JuceAudioProcessor *p);
-void updateSliderForParam(unsigned long index, double value);
-//[/UserMethods]
-```
-
-Also add the following private instance variables
-```cpp
-//[UserVariables]   -- You can add your own custom variables in this section.
-RNBO::JuceAudioProcessor *processor = nullptr;
-HashMap<int, Slider *> slidersByParameterIndex; // used to map parameter index to slider we want to control
-//[/UserVariables]
-```
-
-We'll need to call `setAudioProcessor` from the `CustomAudioEditor`. Open `CustomAudioEditor.cpp` and add the following line:
-
-```cpp
-_rootComponent.setAudioProcessor(p); // <--- add this line
-addAndMakeVisible(_rootComponent);
-setSize(_rootComponent.getWidth(), _rootComponent.getHeight());
-```
-
-Now let's implement `setAudioProcessor`. Open up `RootComponent.cpp` and add the following after `[MiscUserCode]`.
-
-```cpp
-//[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void RootComponent::setAudioProcessor(RNBO::JuceAudioProcessor *p)
-{
-    processor = p;
-
-    RNBO::ParameterInfo parameterInfo;
-    RNBO::CoreObject& coreObject = processor->getRnboObject();
-
-    for (unsigned long i = 0; i < coreObject.getNumParameters(); i++) {
-        auto parameterName = coreObject.getParameterId(i);
-        RNBO::ParameterValue value = coreObject.getParameterValue(i);
-        Slider *slider = nullptr;
-        if (juce::String(parameterName) == juce__slider.get()->getName()) {
-            slider = juce__slider.get();
-        } else if (juce::String(parameterName) == juce__slider2.get()->getName()) {
-            slider = juce__slider2.get();
-        } else if (juce::String(parameterName) == juce__slider3.get()->getName()) {
-            slider = juce__slider3.get();
-        }
-
-        if (slider) {
-            slidersByParameterIndex.set(i, slider);
-            coreObject.getParameterInfo(i, &parameterInfo);
-            slider->setRange(parameterInfo.min, parameterInfo.max);
-            slider->setValue(value);
-        }
-    }
-}
-//[/MiscUserCode]
-```
-
-Notice how we use the name of the slider to map the slider to a parameter with the matching ID. Now, in `RootComponent.cpp` find the function called `sliderValueChanged` and update it as follows:
-
-```cpp
-void RootComponent::sliderValueChanged (juce::Slider* sliderThatWasMoved)
-{
-    //[UsersliderValueChanged_Pre]
-    if (processor == nullptr) return;
-    RNBO::CoreObject& coreObject = processor->getRnboObject();
-    auto parameters = processor->getParameters();
-    //[/UsersliderValueChanged_Pre]
-
-    if (sliderThatWasMoved == juce__slider.get())
+    auto layoutRow = [&] (Label& label, Slider& slider)
     {
-        //[UserSliderCode_juce__slider] -- add your slider handling code here..
-        //[/UserSliderCode_juce__slider]
-    }
-    else if (sliderThatWasMoved == juce__slider2.get())
-    {
-        //[UserSliderCode_juce__slider2] -- add your slider handling code here..
-        //[/UserSliderCode_juce__slider2]
-    }
-    else if (sliderThatWasMoved == juce__slider3.get())
-    {
-        //[UserSliderCode_juce__slider3] -- add your slider handling code here..
-        //[/UserSliderCode_juce__slider3]
-    }
+        auto row = area.removeFromTop (rowHeight);
+        label.setBounds (row.removeFromLeft (60));
+        slider.setBounds (row);
+    };
 
-    //[UsersliderValueChanged_Post]
-    RNBO::ParameterIndex index = coreObject.getParameterIndexForID(sliderThatWasMoved->getName().toRawUTF8());
-    if (index != -1) {
-        const auto param = processor->getParameters()[index];
-        auto newVal = sliderThatWasMoved->getValue();
-
-        if (param && param->getValue() != newVal)
-        {
-            auto normalizedValue = coreObject.convertToNormalizedParameterValue(index, newVal);
-            param->beginChangeGesture();
-            param->setValueNotifyingHost(normalizedValue);
-            param->endChangeGesture();
-        }
-    }
-    //[/UsersliderValueChanged_Post]
+    layoutRow (_kink1Label, _kink1Slider);
+    layoutRow (_kink2Label, _kink2Slider);
+    layoutRow (_kink3Label, _kink3Slider);
 }
 ```
-
-This is all we need to control the RNBO patch using the sliders in our custom UI. However, to be really complete, we should also make sure that the sliders will update if RNBO changes the value of a parameter internally. Open `CustomAudioEditor.cpp` and add the following to `audioProcessorParameterChanged`.
-
-```cpp
-void CustomAudioEditor::audioProcessorParameterChanged (AudioProcessor*, int parameterIndex, float value)
-{
-    _rootComponent.updateSliderForParam(parameterIndex, value);
-}
-```
-
-Now open `RootComponent.cpp` and implement `updateSliderForParam` inside of the `[MiscUserCode]` tags.
-
-```cpp
-void RootComponent::updateSliderForParam(unsigned long index, double value)
-{
-    if (processor == nullptr) return;
-    RNBO::CoreObject& coreObject = processor->getRnboObject();
-    auto denormalizedValue = coreObject.convertFromNormalizedParameterValue(index, value);
-    auto slider = slidersByParameterIndex.getReference((int) index);
-    if (slider && (slider->getThumbBeingDragged() == -1)) {
-        slider->setValue(denormalizedValue, NotificationType::dontSendNotification);
-    }
-}
-```
-
-That's it. Compile and build. You may need to restart Max, or whatever DAW you're using, in order to see changes to your plugin.
 
 ## Epilogue
 
-Obviously this has just scratched the surface of what's possible with custom C++ interfaces. If you want to read more, a great place to get started would be https://www.theaudioprogrammer.com/. In particular, they have a #design-ux-and-ui channel in their Discord that is full of helpful and supportive people. Best of luck and have fun building your custom UI.
+We've just scratched the surface of what's possible with custom HTML and native C++ interfaces.
+
+The examples in this guide intentionally stay small: a few sliders, a toggle, and direct parameter bindings. Real applications will often need more than this. You might want to add waveform displays, parameter grouping, preset browsers, MIDI visualizers, spectrum analyzers, patch management, custom graphics, or entirely different interaction models.
+
+The important thing to understand is that the binding layer scales naturally. Whether you're using native JUCE widgets or a web interface, the core idea stays the same:
+
+1. Export parameters from RNBO
+2. Locate the corresponding audio parameters in the processor
+3. Attach those parameters to UI controls
+4. Let JUCE synchronize state changes in both directions
+
+Once this connection is in place, the rest of the interface becomes a normal application development problem.
+
+If you're experimenting, the web workflow is usually the fastest place to start. Hot reloading makes iteration very quick, and modern HTML/CSS tooling gives you access to a large ecosystem of UI libraries and design tools. If you later need tighter integration, lower overhead, or access to platform-specific functionality, moving to a native JUCE interface is straightforward.
+
+From here, the next step is simply to start replacing the example controls with your own interface and connecting them to your patcher's parameters.
