@@ -1,13 +1,25 @@
 #include "CustomAudioEditor.h"
 
+static juce::RangedAudioParameter&
+findParameter(RNBO::JuceAudioProcessor* p, const juce::String& name)
+{
+    for (auto* param : p->getParameters())
+    {
+        if (param->getName(128) == name)
+            return static_cast<juce::RangedAudioParameter&>(*param);
+    }
+
+    throw std::runtime_error("Parameter not found: " + name.toStdString());
+}
+
 CustomAudioEditor::CustomAudioEditor (RNBO::JuceAudioProcessor* const p,
                                       RNBO::CoreObject& rnboObject)
     : AudioProcessorEditor (p)
     , _audioProcessor (p)
     , _rnboObject (rnboObject)
-    , _kink1Attachment (static_cast<RangedAudioParameter&> (*p->getParameters()[0]), _kink1Slider)
-    , _kink2Attachment (static_cast<RangedAudioParameter&> (*p->getParameters()[1]), _kink2Slider)
-    , _kink3Attachment (static_cast<RangedAudioParameter&> (*p->getParameters()[2]), _kink3Slider)
+    , _kink1Attachment(findParameter(p, "kink1"), _kink1Slider)
+    , _kink2Attachment(findParameter(p, "kink2"), _kink2Slider)
+    , _kink3Attachment(findParameter(p, "kink3"), _kink3Slider)
 {
     for (auto* s : { &_kink1Slider, &_kink2Slider, &_kink3Slider })
     {
