@@ -46,7 +46,7 @@ target_sources(RNBOApp
   )
 
 if (EXISTS ${RNBO_BINARY_DATA_FILE})
-  target_sources(RNBOApp PRIVATE ${RNBO_BINARY_DATA_FILE})
+  target_sources(RNBOApp PRIVATE ${RNBO_BINARY_DATA_FILES})
 endif()
 
 target_include_directories(RNBOApp

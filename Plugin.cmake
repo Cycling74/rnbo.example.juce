@@ -57,7 +57,7 @@ target_sources(RNBOAudioPlugin PRIVATE
   )
 
 if (EXISTS ${RNBO_BINARY_DATA_FILE})
-  target_sources(RNBOAudioPlugin PRIVATE ${RNBO_BINARY_DATA_FILE})
+  target_sources(RNBOAudioPlugin PRIVATE ${RNBO_BINARY_DATA_FILES})
 endif()
 
 target_include_directories(RNBOAudioPlugin

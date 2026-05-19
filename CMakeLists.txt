@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 
-# On M1 Macs, uncomment to enable universal binaries
-# set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
+if (APPLE AND CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
+    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Universal architectures")
+endif()
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug Release")
 
@@ -32,7 +33,8 @@ rnbo_write_description_header_if_exists(${RNBO_DESCRIPTION_FILE} ${DESCRIPTION_I
 include_directories(${DESCRIPTION_INCLUDE_DIR})
 
 if (EXISTS ${RNBO_BINARY_DATA_FILE})
-	add_definitions(-DRNBO_BINARY_DATA_STORAGE_NAME=${RNBO_BINARY_DATA_STORAGE_NAME})
+  file(GLOB RNBO_BINARY_DATA_FILES "${RNBO_EXPORT_DIR}/${RNBO_CLASS_NAME}_binary*.cpp")
+  add_definitions(-DRNBO_BINARY_DATA_STORAGE_NAME=${RNBO_BINARY_DATA_STORAGE_NAME})
 endif()
 
 # Include the JUCE submodule, needed for JUCE-based CMake definitions
