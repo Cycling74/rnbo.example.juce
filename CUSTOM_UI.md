@@ -2,7 +2,7 @@
 
 This guide shows how to build a custom UI for your plugin or standalone app. It does not cover UX best practices or graphic design, but it will show you how to set up a project that creates bidirectional bindings between UI elements and RNBO parameters.
 
-We'll look the two main approaches that you can use: building a native interface using the JUCE library in C++, or creating a web browser interface that binds to your audio processor.
+We'll look at the two main approaches that you can use: building a native interface using the JUCE library in C++, or creating a web browser interface that binds to your audio processor.
 
 Each approach has its own advantages. Building a native interface with JUCE can be more efficient, as it doesn't load a separate web browser component. However, using JUCE's WebBrowserComponent lets you work with HTML/CSS/JS to build your interface, which can be much easier. If you run a local web server, you can also modify your interface while your plugin is running using hot reloading.
 
@@ -36,7 +36,7 @@ In order to set this configuration variable, use `-DRNBO_EDITOR_MODE` during CMa
 cmake .. -DRNBO_EDITOR_MODE=WEBVIEW -G Ninja
 ```
 
-This command will configure Ninja-based build, using a WebBrowserComponent to support a custom UI.
+This command will configure a Ninja-based build, using a WebBrowserComponent to support a custom UI.
 
 ## Exporting the example patcher
 
@@ -56,7 +56,7 @@ The easiest and fastest way to build a custom UI is by using WebBrowserComponent
 
 ```
 cd build
-cmake .. -DRNBO_CLASS_FILE_NAME three-param-kink.cpp -DRNBO_EDITOR_MODE=WEBVIEW
+cmake .. -DRNBO_CLASS_FILE_NAME=three-param-kink.cpp -DRNBO_EDITOR_MODE=WEBVIEW
 ```
 
 If you look in `src/CustomAudioProcessor.cpp`, you'll see code like this:
@@ -80,7 +80,7 @@ As you can see, when the `RNBO_EDITOR_MODE` is set to `WEBVIEW`, the plugin will
 
 This example comes with a very simple web UI already in place. One thing that's really useful about using a WebBrowserComponent to serve our UI is that we can update our UI while the application is still running.
 
-The `WebBrowserAudioEditor` class is responsble for providing resources to the WebBrowserComponent, like HTML files, images, and JavaScript files. At the top of "WebBrowserAudioEditor.cpp", you'll see code like this:
+The `WebBrowserAudioEditor` class is responsible for providing resources to the WebBrowserComponent, like HTML files, images, and JavaScript files. At the top of `WebBrowserAudioEditor.cpp`, you'll see code like this:
 
 ```cpp
 #if JUCE_ANDROID
@@ -90,7 +90,7 @@ static const juce::String kDevServerAddress = "http://localhost:3000/";
 #endif
 ```
 
-That means that if we run a development server on port 3000, then the web interface will load files from that server. Open your terminal and navigate to `src/webui/`.
+That means that if we run a development server on port 3000, then the web interface will load files from that server. Open your terminal and navigate to `src/webui/`. Assuming you are currently in the root directory, you can run:
 
 ```sh
 cd src/webui
@@ -124,7 +124,16 @@ If you open up a web server and go to the web address `http://localhost:3000/`, 
 
 This is the interface to your app/plugin, as it will appear in your final build. Because the `vite` server supports hot reloading, you can make changes to this web page and see them appear instantly in your JUCE build.
 
-Close the web browser. From your terminal, build the app and plugin.
+Close the web browser, but leave the dev server running. Now we can build the app and plugin. 
+
+First, let's build the web UI's production bundle. Open up another terminal window so you can leave the dev server running. 
+
+```sh
+cd src/webui
+npm run build
+```
+
+Now build the app and plugin. Assuming again that you are in the root directory, you can run:
 
 ```
 cd build
@@ -135,7 +144,7 @@ This should build a JUCE standalone app to `build/RNBOApp_artefacts/Release/RNBO
 
 ![](./img/kink-synth-app.png)
 
-Now, go into the HTML file at `src/webui/index.html` and make some changes. You can change whatever you want, for example adding some inline style or changing the text. 
+Now, if you left your dev server running, you can go into the HTML file at `src/webui/index.html` and make some changes and see them update live. You can change whatever you want, for example adding some inline style or changing the text. 
 
 ```html
     <body>
@@ -189,7 +198,7 @@ This provides the webpage with the name of the available relays, so that the sli
     WebToggleButtonParameterAttachment _automateAttachment;
 ```
 
-These attachments create a bidirectional attachment between the relay and the Audio Parameters themselves. In the `SinglePageBrowser` constructor, we initialize these with both the relays as well as the parameters.
+These attachments create a bidirectional attachment between the relay and the Audio Parameters themselves. In the `SinglePageBrowser` constructor, we initialize these with both the relays and the parameters.
 
 ```cpp
 static juce::RangedAudioParameter&
@@ -234,7 +243,7 @@ This is everything that we need to do on the C++ side. Creating and positioning 
 
 ### Creating the web interface
 
-JUCE provide a JavaScript framework to expose the parameters to the web interface. At the top of `src/webui/main.js`, you'll see an import for some of these functions.
+JUCE provides a JavaScript framework to expose the parameters to the web interface. At the top of `src/webui/main.js`, you'll see an import for some of these functions.
 
 ```js
 import { getSliderState, getToggleState } from 'juce-framework-frontend';
@@ -320,7 +329,7 @@ juce::AudioProcessorEditor* CustomAudioProcessor::createEditor()
 }
 ```
 
-If you build the project now, and open the application in `build/RNBOApp_artefacts`, you should see something like this:
+If you build the project now with `cmake --build .`, and open the application in `build/RNBOApp_artefacts`, you should see something like this:
 
 ![](./img/native-ui.png)
 
