@@ -30,13 +30,19 @@ This defines a configuration variable called `RNBO_EDITOR_MODE`, which can be se
 | NATIVE | Uses the JUCE library to create a native interface in C++ |
 | WEBVIEW | Uses WebBrowserComponent to create a web-based interface using browser technology |
 
-In order to set this configuration variable, use `-DRNBO_EDITOR_MODE` during CMake configuration. For example:
+In order to set this configuration variable, use `-DRNBO_EDITOR_MODE` during CMake configuration. If you're using Ninja to build, that might look like this:
 
 ```sh
 cmake .. -DRNBO_EDITOR_MODE=WEBVIEW -G Ninja
 ```
 
 This command will configure a Ninja-based build, using a WebBrowserComponent to support a custom UI.
+
+The equivalent command on a Windows machine (building with Visual Studio) could look like this:
+
+```sh
+cmake .. -DRNBO_EDITOR_MODE=WEBVIEW -G "Visual Studio 17 2022"
+```
 
 ## Exporting the example patcher
 
