@@ -51,12 +51,41 @@ add_subdirectory(
 
 # Compile web UI files into the binary — only needed for the WEBVIEW editor.
 if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
+    set(WEBUI_DIR "${CMAKE_CURRENT_LIST_DIR}/src/webui")
+    set(WEBUI_DIST_HTML "${WEBUI_DIR}/dist/index.html")
+    set(WEBUI_DIST_JS   "${WEBUI_DIR}/dist/index.js")
+
+    # Glob source files so the build reruns when they change.
+    file(GLOB_RECURSE WEBUI_SOURCES
+        "${WEBUI_DIR}/index.html"
+        "${WEBUI_DIR}/main.js"
+        "${WEBUI_DIR}/vite.config.js"
+        "${WEBUI_DIR}/package.json"
+    )
+
+    find_program(NPM_EXECUTABLE npm REQUIRED)
+
+    add_custom_command(
+        OUTPUT  ${WEBUI_DIST_HTML} ${WEBUI_DIST_JS}
+        COMMAND ${NPM_EXECUTABLE} install
+        COMMAND ${NPM_EXECUTABLE} run build
+        WORKING_DIRECTORY ${WEBUI_DIR}
+        DEPENDS ${WEBUI_SOURCES}
+        COMMENT "Building web UI (npm run build)"
+        VERBATIM
+    )
+
+    add_custom_target(RNBOWebUIBuild
+        DEPENDS ${WEBUI_DIST_HTML} ${WEBUI_DIST_JS}
+    )
+
     juce_add_binary_data(RNBOUIData
         NAMESPACE RNBOUIData
         SOURCES
-        ${CMAKE_CURRENT_LIST_DIR}/src/webui/dist/index.html
-        ${CMAKE_CURRENT_LIST_DIR}/src/webui/dist/index.js
+        ${WEBUI_DIST_HTML}
+        ${WEBUI_DIST_JS}
     )
+    add_dependencies(RNBOUIData RNBOWebUIBuild)
 endif()
 
 # Or, instead, use Conan to get JUCE, should speed up clean builds
