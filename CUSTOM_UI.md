@@ -130,16 +130,7 @@ If you open up a web server and go to the web address `http://localhost:3000/`, 
 
 This is the interface to your app/plugin, as it will appear in your final build. Because the `vite` server supports hot reloading, you can make changes to this web page and see them appear instantly in your JUCE build.
 
-Close the web browser, but leave the dev server running. Now we can build the app and plugin. 
-
-First, let's build the web UI's production bundle. Open up another terminal window so you can leave the dev server running. 
-
-```sh
-cd src/webui
-npm run build
-```
-
-Now build the app and plugin. Assuming again that you are in the root directory, you can run:
+Close the web browser, but leave the dev server running. Now we can build the app and plugin. Assuming again that you are in the root directory, you can run:
 
 ```
 cd build
@@ -290,13 +281,9 @@ We've already seen how to use the dev server to change the webpage dynamically w
 ```cmake
 # Compile web UI files into the binary — only needed for the WEBVIEW editor.
 if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
-    juce_add_binary_data(RNBOUIData
-        NAMESPACE RNBOUIData
-        SOURCES
-        ${CMAKE_CURRENT_LIST_DIR}/src/webui/dist/index.html
-        ${CMAKE_CURRENT_LIST_DIR}/src/webui/dist/index.js
-    )
-endif()
+    set(WEBUI_DIR "${CMAKE_CURRENT_LIST_DIR}/src/webui")
+    set(WEBUI_DIST_HTML "${WEBUI_DIR}/dist/index.html")
+    set(WEBUI_DIST_JS   "${WEBUI_DIR}/dist/index.js")
 ```
 
 These files `src/webui/dist/index.html` and `src/webui/dist/index.js` are the bundled version of the Vite application. To generate these, change to the `src/webui` directory and run `npm run build`.
@@ -307,6 +294,8 @@ npm run build
 ```
 
 Now when you build your application or plugin, the compiled and bundled version of the Vite application will be included in the program binary. 
+
+> For your convienience, the CMakeLists.txt file is sit up to build the Vite project automatically if the WEBVIEW interface is enabled. It's not in fact necessary to change to the `src/webui` directory and run `npm run build` manually, as CMake will take care of this automatically. However, it's good to know that this is what CMake is doing. If you change the structure of the Vite project and need to bundle your webpage assets differently, you'll need to modify CMakeLists.txt to include these changes.
 
 ## Creating a Native UI
 
