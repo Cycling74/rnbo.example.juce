@@ -8,7 +8,7 @@ If you want to build an app or plugin for sale, be aware that the JUCE has its o
 
 ## Prerequisites
 
-- Download and install [CMake](https://cmake.org/download/). Version 3.18 or higher is required. On MacOS, we recommend installing CMake with [Homebrew](https://brew.sh/)
+- Download and install [CMake](https://cmake.org/download/). Version 3.22 or higher is required. On MacOS, we recommend installing CMake with [Homebrew](https://brew.sh/)
 - Download and install [git](https://git-scm.com/downloads).
 - Some kind of build system and compiler. You have options here.
  - (MacOS) Install Xcode command line tools by running `sudo xcode-select --install` on the command line. You'll use `make` to compile your application. (You will not be able to use Xcode to build your application unless you install Xcode itself.)
