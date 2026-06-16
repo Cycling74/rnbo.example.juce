@@ -4,7 +4,7 @@ This template demonstrates how to use RNBO in either a Standalone Desktop applic
 
 If you want to build an app or plugin for sale, be aware that the JUCE has its own license terms (mostly GPL with the availability of commercial licenses). See their [website](http://www.juce.com/) for further details.
 
-> **Alert (macOS users):** If you are using macOS 15+, you may have trouble building the `main` branch due to an incompatibility with the JUCE version it uses. Please use the [`juce8` branch](https://github.com/Cycling74/rnbo.example.juce/tree/juce8) instead.
+> We've updated this project to use JUCE 8. If you've built this project previously, you will need to run `git submodule update --init --recursive --progress` again to update the `juce` submodule. See [Getting Started](#getting-started) for more details. Also, if you need to use JUCE 7, the main branch has a tag `juce7` that points to the last commit before the update to JUCE 8.
 
 ## Prerequisites
 
