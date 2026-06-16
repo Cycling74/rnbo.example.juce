@@ -57,8 +57,8 @@ if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
     set(WEBUI_DIST_HTML "${WEBUI_DIR}/dist/index.html")
     set(WEBUI_DIST_JS   "${WEBUI_DIR}/dist/index.js")
 
-    # Glob source files so the build reruns when they change.
-    file(GLOB_RECURSE WEBUI_SOURCES
+    # List source files so the build reruns when they change.
+    set(WEBUI_SOURCES
         "${WEBUI_DIR}/index.html"
         "${WEBUI_DIR}/main.js"
         "${WEBUI_DIR}/vite.config.js"
