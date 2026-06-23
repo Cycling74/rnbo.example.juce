@@ -1,10 +1,6 @@
 #include "CustomAudioProcessor.h"
-#if defined(RNBO_EDITOR_NATIVE)
-#include "CustomAudioEditor.h"
-#elif defined(RNBO_EDITOR_WEBVIEW)
-#include "WebBrowserAudioEditor.h"
-#endif
 #include <json/json.hpp>
+#include "ui-config.h"
 
 #ifdef RNBO_INCLUDE_DESCRIPTION_FILE
 #include <rnbo_description.h>

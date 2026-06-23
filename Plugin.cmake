@@ -60,10 +60,11 @@ target_sources(RNBOAudioPlugin PRIVATE
   src/CustomAudioProcessor.cpp
   )
 
+set(RNBO_TARGET RNBOAudioPlugin)
 if(RNBO_EDITOR_MODE STREQUAL "NATIVE")
-  target_sources(RNBOAudioPlugin PRIVATE src/CustomAudioEditor.cpp)
+  include(${NATIVE_EDITOR_DIR}/CMakeLists.txt)
 elseif(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
-  target_sources(RNBOAudioPlugin PRIVATE src/WebBrowserAudioEditor.cpp)
+  include(${WEB_EDITOR_DIR}/CMakeLists.txt)
 endif()
 
 if (EXISTS ${RNBO_BINARY_DATA_FILE})
@@ -78,6 +79,7 @@ target_include_directories(RNBOAudioPlugin
   ${RNBO_CPP_DIR}/adapters/juce/
   ${RNBO_CPP_DIR}/src/3rdparty/
   src
+  ${PROJECT_BINARY_DIR}/src
 )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
@@ -99,14 +101,6 @@ target_compile_definitions(RNBOAudioPlugin
 # dependencies are resolved automatically, so `juce_core`, `juce_events` and so on will also be
 # linked automatically. If we'd generated a binary data target above, we would need to link to it
 # here too. This is a standard CMake command.
-
-if(RNBO_EDITOR_MODE STREQUAL "NATIVE")
-  target_compile_definitions(RNBOAudioPlugin PRIVATE RNBO_EDITOR_NATIVE)
-elseif(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
-  target_compile_definitions(RNBOAudioPlugin PRIVATE RNBO_EDITOR_WEBVIEW)
-  target_compile_definitions(RNBOAudioPlugin PUBLIC JUCE_WEB_BROWSER=1)
-  target_link_libraries(RNBOAudioPlugin PRIVATE RNBOUIData)
-endif()
 
 target_link_libraries(RNBOAudioPlugin
   PRIVATE

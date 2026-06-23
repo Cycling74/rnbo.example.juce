@@ -33,6 +33,12 @@ set(PLUGIN_PARAM_DEFAULT_NOTIFY ON CACHE BOOL "Should parameter changes from ins
 set(RNBO_EDITOR_MODE "DEFAULT" CACHE STRING "UI editor: DEFAULT (Generic JUCE controls), NATIVE (Custom JUCE controls), WEBVIEW (WebBrowserComponent)")
 set_property(CACHE RNBO_EDITOR_MODE PROPERTY STRINGS DEFAULT NATIVE WEBVIEW)
 
+# Default path for the custome native UI
+set(NATIVE_EDITOR_DIR "${CMAKE_CURRENT_LIST_DIR}/src/nativeui" CACHE STRING "Path to the custom native UI implementation, defaults to src/nativeui")
+
+# Default path for the web UI
+set(WEB_EDITOR_DIR "${CMAKE_CURRENT_LIST_DIR}/src/webui" CACHE STRING "Path to the web UI implementation, defaults to src/webui")
+
 #write description header file if description.json exists, sets RNBO_INCLUDE_DESCRIPTION_FILE if the file exists
 include(${RNBO_CPP_DIR}/cmake/RNBODescriptionHeader.cmake)
 set(DESCRIPTION_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
@@ -51,52 +57,22 @@ add_subdirectory(
   EXCLUDE_FROM_ALL #don't build examples etc, also don't install
 )
 
-# Compile web UI files into the binary — only needed for the WEBVIEW editor.
-if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
-    set(WEBUI_DIR "${CMAKE_CURRENT_LIST_DIR}/src/webui")
-    set(WEBUI_DIST_HTML "${WEBUI_DIR}/dist/index.html")
-    set(WEBUI_DIST_JS   "${WEBUI_DIR}/dist/index.js")
-
-    # List source files so the build reruns when they change.
-    set(WEBUI_SOURCES
-        "${WEBUI_DIR}/index.html"
-        "${WEBUI_DIR}/main.js"
-        "${WEBUI_DIR}/vite.config.js"
-        "${WEBUI_DIR}/package.json"
-    )
-
-    find_program(NPM_EXECUTABLE npm REQUIRED)
-
-    add_custom_command(
-        OUTPUT  ${WEBUI_DIST_HTML} ${WEBUI_DIST_JS}
-        COMMAND ${NPM_EXECUTABLE} install
-        COMMAND ${NPM_EXECUTABLE} run build
-        WORKING_DIRECTORY ${WEBUI_DIR}
-        DEPENDS ${WEBUI_SOURCES}
-        COMMENT "Building web UI (npm run build)"
-        VERBATIM
-    )
-
-    add_custom_target(RNBOWebUIBuild
-        DEPENDS ${WEBUI_DIST_HTML} ${WEBUI_DIST_JS}
-    )
-
-    juce_add_binary_data(RNBOUIData
-        NAMESPACE RNBOUIData
-        SOURCES
-        ${WEBUI_DIST_HTML}
-        ${WEBUI_DIST_JS}
-    )
-    add_dependencies(RNBOUIData RNBOWebUIBuild)
-endif()
-
 # Or, instead, use Conan to get JUCE, should speed up clean builds
 # include(${RNBO_CPP_DIR}/cmake/RNBOJuce.cmake)
 
+# Compile web UI files into the binary — only needed for the WEBVIEW editor.
+if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
+    add_subdirectory(${WEB_EDITOR_DIR})
+endif()
+
+# Create the correct UI header depending on UI style
+configure_file(
+    "${CMAKE_CURRENT_LIST_DIR}/src/ui-config.h.in"
+    "${PROJECT_BINARY_DIR}/src/ui-config.h"
+)
 
 # Optionally, enable ccache, should speed up builds
 # include(${RNBO_CPP_DIR}/cmake/CCache.cmake)
-
 
 # Comment out this line if you really want to emulate MIDI CC with Audio Parameters.
 # See the discussion here: https://forums.steinberg.net/t/vst3-and-midi-cc-pitfall/201879/11
