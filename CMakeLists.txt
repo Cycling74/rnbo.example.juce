@@ -33,7 +33,7 @@ set(PLUGIN_PARAM_DEFAULT_NOTIFY ON CACHE BOOL "Should parameter changes from ins
 set(RNBO_EDITOR_MODE "DEFAULT" CACHE STRING "UI editor: DEFAULT (Generic JUCE controls), NATIVE (Custom JUCE controls), WEBVIEW (WebBrowserComponent)")
 set_property(CACHE RNBO_EDITOR_MODE PROPERTY STRINGS DEFAULT NATIVE WEBVIEW)
 
-# Default path for the custome native UI
+# Default path for the custom native UI
 set(NATIVE_EDITOR_DIR "${CMAKE_CURRENT_LIST_DIR}/src/nativeui" CACHE STRING "Path to the custom native UI implementation, defaults to src/nativeui")
 
 # Default path for the web UI
