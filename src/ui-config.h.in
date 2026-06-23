@@ -1,10 +1,7 @@
 #pragma once
 
-#define NATIVE_EDITOR_DIR "@NATIVE_EDITOR_DIR@"
-#define WEB_EDITOR_DIR "@WEB_EDITOR_DIR@"
-
 #ifdef RNBO_EDITOR_NATIVE
-#include NATIVE_EDITOR_DIR "/CustomAudioEditor.h"
+#include "@NATIVE_EDITOR_DIR@/CustomAudioEditor.h"
 #elif defined(RNBO_EDITOR_WEBVIEW)
-#include WEB_EDITOR_DIR "/WebBrowserAudioEditor.h"
+#include "@WEB_EDITOR_DIR@/WebBrowserAudioEditor.h"
 #endif
