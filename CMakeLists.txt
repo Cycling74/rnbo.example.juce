@@ -38,6 +38,7 @@ set(NATIVE_EDITOR_DIR "${CMAKE_CURRENT_LIST_DIR}/src/nativeui" CACHE STRING "Pat
 
 # Default path for the web UI
 set(WEB_EDITOR_DIR "${CMAKE_CURRENT_LIST_DIR}/src/webui" CACHE STRING "Path to the web UI implementation, defaults to src/webui")
+get_filename_component(WEB_EDITOR_DIR "${WEB_EDITOR_DIR}" ABSOLUTE BASE_DIR "${CMAKE_SOURCE_DIR}")
 
 #write description header file if description.json exists, sets RNBO_INCLUDE_DESCRIPTION_FILE if the file exists
 include(${RNBO_CPP_DIR}/cmake/RNBODescriptionHeader.cmake)
