@@ -131,41 +131,14 @@ The second uses a WebBrowserComponent to build a UI using HTML/CSS/JS.
 cmake -DRNBO_EDITOR_MODE=WEBVIEW ..
 ```
 
-See [CUSTOM_UI.md](./CUSTOM_UI.md) for more details on how to build your own UI.
-
-### Building with CMake
-
-#### Choosing debug or release
-
-You can configure CMake to build either a Debug or a Release target. The Debug target is larger and less optimized, but includes symbols that map from the compiled code back to your source file. This lets you set breakpoints in your code, which is helpful for debugging. Use the flag `CMAKE_BUILD_TYPE` flag to choose Debug or Release.
+By default, `NATIVE` sources its C++ files from `src/nativeui` and `WEBVIEW` sources its files from `src/webui`. If you want to supply your own implementation — for example, to keep your custom UI in a separate directory or a separate repository — you can override either path at configure time:
 
 ```sh
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DNATIVE_EDITOR_DIR=/path/to/your/native-ui ..
+cmake -DWEB_EDITOR_DIR=/path/to/your/web-ui ..
 ```
 
-#### Renaming your export source
-
-By default, the build script looks for a RNBO export in the `export` folder named `rnbo_source.cpp`. If you export your RNBO patch with a different name, pass that as a configuration argument when you run CMake. For example, to use the Ninja build system and a RNBO export named `slime_sound.cpp`, you could use the following command.
-
-```sh
-cmake -DRNBO_CLASS_FILE_NAME=slime_sound.cpp -G Ninja ..
-```
-
-#### Choosing a UI system
-
-RNBO provides a default interface for audio plugins, which simply creates a slider for each parameter in your RNBO patch. If you want to create a custom interface, you can configure CMake to use a different interface system.
-
-This template is set up with a starting point for two different custom UI systems. The first uses JUCE to build a native C++ UI.
-
-```sh
-cmake -DRNBO_EDITOR_MODE=NATIVE ..
-```
-
-The second uses a WebBrowserComponent to build a UI using HTML/CSS/JS. 
-
-```sh
-cmake -DRNBO_EDITOR_MODE=WEBVIEW ..
-```
+Each directory is expected to contain a `CMakeLists.txt` that adds sources and any necessary compile definitions or link libraries to the `${RNBO_TARGET}` CMake variable. See `src/nativeui/CMakeLists.txt` and `src/webui/CMakeLists.txt` for examples.
 
 See [CUSTOM_UI.md](./CUSTOM_UI.md) for more details on how to build your own UI.
 

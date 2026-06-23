@@ -44,6 +44,8 @@ The equivalent command on a Windows machine (building with Visual Studio) could 
 cmake .. -DRNBO_EDITOR_MODE=WEBVIEW -G "Visual Studio 17 2022"
 ```
 
+> If you want to supply your own UI implementation from a different directory — for instance, a separate repo — you can override the default paths using the `NATIVE_EDITOR_DIR` and `WEB_EDITOR_DIR` CMake variables. See the [Choosing a UI system](./README.md#choosing-a-ui-system) section in `README.md` for details.
+
 ## Exporting the example patcher
 
 For this example, we're going to create a custom user interface for a simple drone patcher, which you can export into `/export` as per the instructions over in `README.md`. These instructions in this document should work for both a plugin as well as a desktop app. 
@@ -154,7 +156,7 @@ Now, if you left your dev server running, you can go into the HTML file at `src/
 
 ### Binding the interface to the engine
 
-Let's take a closer look at the definition of `WebBrowserAudioEditor` to see how this class binds the sliders in the app to the parameters of the RNBO export. In `src/WebBrowserAudioEditor.h`, you'll see where the editor creates some controller objects called _relays_.
+Let's take a closer look at the definition of `WebBrowserAudioEditor` to see how this class binds the sliders in the app to the parameters of the RNBO export. In `src/webui/WebBrowserAudioEditor.h`, you'll see where the editor creates some controller objects called _relays_.
 
 ```cpp
     WebSliderRelay _kink1Relay { "kink1" };
@@ -276,30 +278,31 @@ As you can see, this function calls `document.getElementById` to get an HTML ele
 
 ### Building the web application
 
-We've already seen how to use the dev server to change the webpage dynamically while the app is running. However, for the release version of the plugin, you will load the web page from the application binary itself. In `CMakeLists.txt`, you'll see where the web page is loaded into the binary:
+We've already seen how to use the dev server to change the webpage dynamically while the app is running. However, for the release version of the plugin, you will load the web page from the application binary itself. In `src/webui/CMakeLists.txt`, you'll see where the web page is compiled into the binary:
 
 ```cmake
-# Compile web UI files into the binary — only needed for the WEBVIEW editor.
-if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
-    set(WEBUI_DIR "${CMAKE_CURRENT_LIST_DIR}/src/webui")
-    set(WEBUI_DIST_HTML "${WEBUI_DIR}/dist/index.html")
-    set(WEBUI_DIST_JS   "${WEBUI_DIR}/dist/index.js")
+juce_add_binary_data(RNBOUIData
+    NAMESPACE RNBOUIData
+    SOURCES
+    ${WEBUI_DIST_HTML}
+    ${WEBUI_DIST_JS}
+)
 ```
 
-These files `src/webui/dist/index.html` and `src/webui/dist/index.js` are the bundled version of the Vite application. To generate these, change to the `src/webui` directory and run `npm run build`.
+These files `src/webui/dist/index.html` and `src/webui/dist/index.js` are the bundled output of the Vite application. To generate them manually, change to the `src/webui` directory and run `npm run build`.
 
 ```sh
 cd src/webui
 npm run build
 ```
 
-Now when you build your application or plugin, the compiled and bundled version of the Vite application will be included in the program binary. 
+Now when you build your application or plugin, the compiled and bundled version of the Vite application will be included in the program binary.
 
-> For your convienience, the CMakeLists.txt file is sit up to build the Vite project automatically if the WEBVIEW interface is enabled. It's not in fact necessary to change to the `src/webui` directory and run `npm run build` manually, as CMake will take care of this automatically. However, it's good to know that this is what CMake is doing. If you change the structure of the Vite project and need to bundle your webpage assets differently, you'll need to modify CMakeLists.txt to include these changes.
+> For your convenience, `src/webui/CMakeLists.txt` is set up to run `npm install` and `npm run build` automatically whenever the WEBVIEW interface is enabled. It's not necessary to do this manually — CMake will take care of it. However, if you change the structure of the Vite project and need to bundle your assets differently, you'll need to update `src/webui/CMakeLists.txt` to reflect those changes.
 
 ## Creating a Native UI
 
-If you don't want your plugin to use a web component, you can use JUCE's UI classes to build a native C++ interface. The file `src/CustomAudioEditor.h` defines the `CustomAudioEditor` class, which implements a simple native interface for the RNBO patcher `patches/three-param-kink.maxpat`.
+If you don't want your plugin to use a web component, you can use JUCE's UI classes to build a native C++ interface. The file `src/nativeui/CustomAudioEditor.h` defines the `CustomAudioEditor` class, which implements a simple native interface for the RNBO patcher `patches/three-param-kink.maxpat`.
 
 ### Configuring CMake
 
