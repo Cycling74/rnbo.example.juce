@@ -101,10 +101,20 @@ You might be wondering which on is "best". We say, if you're familiar with Xcode
 
 #### Choosing debug or release
 
-You can configure CMake to build either a Debug or a Release target. The Debug target is larger and less optimized, but includes symbols that map from the compiled code back to your source file. This lets you set breakpoints in your code, which is helpful for debugging. Use the flag `CMAKE_BUILD_TYPE` flag to choose Debug or Release.
+You can configure CMake to build either a Debug or a Release target. The Debug target is larger and less optimized, but includes symbols that map from the compiled code back to your source file. This lets you set breakpoints in your code, which is helpful for debugging.
+
+How you select this depends on the generator you chose above.
+
+Visual Studio and Xcode are multi-configuration generators — they hold all configurations at once and you pick one at build time:
 
 ```sh
+cmake --build . --config Release
+```
+Make and Ninja are single-configuration generators — you pick the configuration when you configure:
+
+```
 cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake --build .
 ```
 
 #### Renaming your export source
