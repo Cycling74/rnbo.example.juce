@@ -125,6 +125,8 @@ By default, the build script looks for a RNBO export in the `export` folder name
 cmake -DRNBO_CLASS_FILE_NAME=slime_sound.cpp -G Ninja ..
 ```
 
+**Windows PowerShell:** PowerShell splits unquoted arguments like this one at the period, so CMake only sees `slime_sound`. Wrap the whole argument in quotes: `"-DRNBO_CLASS_FILE_NAME=slime_sound.cpp"`.
+
 #### Choosing a UI system
 
 RNBO provides a default interface for audio plugins, which simply creates a slider for each parameter in your RNBO patch. If you want to create a custom interface, you can configure CMake to use a different interface system.
