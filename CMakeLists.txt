@@ -64,6 +64,10 @@ add_subdirectory(
 # Compile web UI files into the binary — only needed for the WEBVIEW editor.
 if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
     add_subdirectory(${WEB_EDITOR_DIR})
+    # Windows also needs the WebView2 SDK, fetched here if it isn't already installed
+    if(WIN32)
+        include(${CMAKE_CURRENT_LIST_DIR}/WebView2.cmake)
+    endif()
 endif()
 
 # Create the correct UI header depending on UI style

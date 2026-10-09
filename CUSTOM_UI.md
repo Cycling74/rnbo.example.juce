@@ -10,7 +10,7 @@ For most people, we recommend starting with the web-based approach.
 
 ## Prerequisites
 
-If you haven't yet followed the setup steps in [README.md](./README.md), you should do so before you follow this tutorial. If you want to follow the guide for building a web-based interface, you will also need to install [Node.js](https://nodejs.org/).
+If you haven't yet followed the setup steps in [README.md](./README.md), you should do so before you follow this tutorial. If you want to follow the guide for building a web-based interface, you will also need to install [Node.js](https://nodejs.org/). On Windows, CMake will also download the Microsoft WebView2 SDK the first time you configure the web UI build; see [Choosing a UI system](./README.md#choosing-a-ui-system) for details.
 
 ## Switching UI
 

@@ -9,7 +9,8 @@
 # `docs/CMake API.md` in the JUCE repo for the full list.
 
 if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
-  set(_needs_web_browser NEEDS_WEB_BROWSER TRUE)
+  # NEEDS_WEBVIEW2 links the WebView2 SDK on Windows (see WebView2.cmake); ignored elsewhere
+  set(_needs_web_browser NEEDS_WEB_BROWSER TRUE NEEDS_WEBVIEW2 TRUE)
 endif()
 
 juce_add_gui_app(RNBOApp
@@ -54,6 +55,10 @@ if(RNBO_EDITOR_MODE STREQUAL "NATIVE")
   include(${NATIVE_EDITOR_DIR}/CMakeLists.txt)
 elseif(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
   include(${WEB_EDITOR_DIR}/CMakeLists.txt)
+  if(WIN32)
+    # Enables the WebView2 backend, which WebBrowserComponent needs on Windows for withResourceProvider
+    target_compile_definitions(RNBOApp PUBLIC JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING=1)
+  endif()
 endif()
 
 if (EXISTS ${RNBO_BINARY_DATA_FILE})
