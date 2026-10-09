@@ -20,6 +20,14 @@ mark_as_advanced(RNBO_CLASS_FILE_NAME)
 
 set(RNBO_CLASS_NAME "rnbomatic")
 set(RNBO_CLASS_FILE "${RNBO_EXPORT_DIR}/${RNBO_CLASS_FILE_NAME}")
+if(NOT EXISTS "${RNBO_CLASS_FILE}")
+  message(FATAL_ERROR
+    "RNBO class file not found: ${RNBO_CLASS_FILE}\n"
+    "Export your RNBO patch to ${RNBO_EXPORT_DIR}, and make sure RNBO_CLASS_FILE_NAME "
+    "matches the exported .cpp file name (currently \"${RNBO_CLASS_FILE_NAME}\").\n"
+    "In Windows PowerShell, quote the whole argument so the name isn't split at the period, "
+    "e.g. \"-DRNBO_CLASS_FILE_NAME=my_patch.cpp\"")
+endif()
 set(RNBO_DESCRIPTION_FILE "${RNBO_EXPORT_DIR}/description.json")
 set(RNBO_PRESETS_FILE "${RNBO_EXPORT_DIR}/presets.json")
 set(RNBO_BINARY_DATA_FILE "${RNBO_EXPORT_DIR}/${RNBO_CLASS_NAME}_binary.cpp")
@@ -64,6 +72,10 @@ add_subdirectory(
 # Compile web UI files into the binary — only needed for the WEBVIEW editor.
 if(RNBO_EDITOR_MODE STREQUAL "WEBVIEW")
     add_subdirectory(${WEB_EDITOR_DIR})
+    # Windows also needs the WebView2 SDK, fetched here if it isn't already installed
+    if(WIN32)
+        include(${CMAKE_CURRENT_LIST_DIR}/WebView2.cmake)
+    endif()
 endif()
 
 # Create the correct UI header depending on UI style

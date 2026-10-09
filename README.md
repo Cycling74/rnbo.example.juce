@@ -125,6 +125,8 @@ By default, the build script looks for a RNBO export in the `export` folder name
 cmake -DRNBO_CLASS_FILE_NAME=slime_sound.cpp -G Ninja ..
 ```
 
+**Windows PowerShell:** PowerShell splits unquoted arguments like this one at the period, so CMake only sees `slime_sound`. Wrap the whole argument in quotes: `"-DRNBO_CLASS_FILE_NAME=slime_sound.cpp"`.
+
 #### Choosing a UI system
 
 RNBO provides a default interface for audio plugins, which simply creates a slider for each parameter in your RNBO patch. If you want to create a custom interface, you can configure CMake to use a different interface system.
@@ -139,6 +141,12 @@ The second uses a WebBrowserComponent to build a UI using HTML/CSS/JS.
 
 ```sh
 cmake -DRNBO_EDITOR_MODE=WEBVIEW ..
+```
+
+**Windows:** the WEBVIEW editor uses Microsoft's WebView2, which needs the WebView2 SDK at build time. If the SDK isn't already installed through NuGet, CMake downloads it (about 9 MB) into `build/_deps/webview2` the first time you configure. To use a copy you already have, for example when building offline, point CMake at the directory containing the `Microsoft.Web.WebView2.*` package folder:
+
+```sh
+cmake -DRNBO_EDITOR_MODE=WEBVIEW -DJUCE_WEBVIEW2_PACKAGE_LOCATION=C:/path/to/packages ..
 ```
 
 By default, `NATIVE` sources its C++ files from `src/nativeui` and `WEBVIEW` sources its files from `src/webui`. If you want to supply your own implementation — for example, to keep your custom UI in a separate directory or a separate repository — you can override either path at configure time:

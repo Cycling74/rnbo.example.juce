@@ -10,7 +10,7 @@ For most people, we recommend starting with the web-based approach.
 
 ## Prerequisites
 
-If you haven't yet followed the setup steps in [README.md](./README.md), you should do so before you follow this tutorial. If you want to follow the guide for building a web-based interface, you will also need to install [Node.js](https://nodejs.org/).
+If you haven't yet followed the setup steps in [README.md](./README.md), you should do so before you follow this tutorial. If you want to follow the guide for building a web-based interface, you will also need to install [Node.js](https://nodejs.org/). On Windows, CMake will also download the Microsoft WebView2 SDK the first time you configure the web UI build; see [Choosing a UI system](./README.md#choosing-a-ui-system) for details.
 
 ## Switching UI
 
@@ -66,6 +66,8 @@ The easiest and fastest way to build a custom UI is by using WebBrowserComponent
 cd build
 cmake .. -DRNBO_CLASS_FILE_NAME=three-param-kink.cpp -DRNBO_EDITOR_MODE=WEBVIEW
 ```
+
+> In Windows PowerShell, quote the class file argument (`"-DRNBO_CLASS_FILE_NAME=three-param-kink.cpp"`), otherwise PowerShell splits it at the period. See [Renaming your export source](./README.md#renaming-your-export-source).
 
 If you look in `src/CustomAudioProcessor.cpp`, you'll see code like this:
 
