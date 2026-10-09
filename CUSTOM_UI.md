@@ -67,6 +67,8 @@ cd build
 cmake .. -DRNBO_CLASS_FILE_NAME=three-param-kink.cpp -DRNBO_EDITOR_MODE=WEBVIEW
 ```
 
+> In Windows PowerShell, quote the class file argument (`"-DRNBO_CLASS_FILE_NAME=three-param-kink.cpp"`), otherwise PowerShell splits it at the period. See [Renaming your export source](./README.md#renaming-your-export-source).
+
 If you look in `src/CustomAudioProcessor.cpp`, you'll see code like this:
 
 ```cpp
