@@ -58,6 +58,8 @@ public:
                                                     DocumentWindow::allButtons)
         {
 			// setup the RNBO Logger (optional)
+#if __has_include("RNBO_LoggerImpl.h")
+			// RNBO up to 1.5.0-dev.132 has one global logger
 			RNBO::Logger::getInstance().setLoggerOutputCallback(
 				[](RNBO::LogLevel level, const char* message)
 				{
@@ -65,6 +67,10 @@ public:
 					juce::Logger::outputDebugString(str);
 				}
 			);
+#else
+			// later versions log per CoreObject, and RNBO::JuceAudioProcessor
+			// already forwards its object's messages to juce::Logger
+#endif
 
 			setUsingNativeTitleBar (true);
             setContentOwned (createMainContentComponent(), true);
